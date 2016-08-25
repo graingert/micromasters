@@ -15,6 +15,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
 from courses.models import CourseRun
+from ecommerce.exceptions import (
+    EcommerceException,
+    ParseException,
+)
 from ecommerce.models import (
     Line,
     Order,
@@ -162,3 +166,43 @@ def make_reference_id(order):
             A reference number for use with CyberSource to keep track of orders
     """
     return "MM-{}-{}".format(settings.CYBERSOURCE_REFERENCE_PREFIX, order.id)
+
+
+def get_order_by_reference_number(reference_number):
+    """
+    Parse a reference number received from CyberSource and lookup the corresponding Order. If the Order
+    is already fulfilled an EcommerceException is raised.
+
+    Args:
+        reference_number (str):
+            A string which contains the order id and the instance which generated it
+    Returns:
+        Order:
+            An order
+    """
+    if not reference_number.startswith("MM-"):
+        raise ParseException("Reference number must start with MM-")
+    reference_number = reference_number[len("MM-"):]
+
+    try:
+        order_id_pos = reference_number.rindex('-')
+    except ValueError:
+        raise ParseException("Unable to find order number in reference number")
+
+    try:
+        order_id = int(reference_number[order_id_pos + 1:])
+    except ValueError:
+        raise ParseException("Unable to parse order number")
+
+    prefix = reference_number[:order_id_pos]
+    if prefix != settings.CYBERSOURCE_REFERENCE_PREFIX:
+        log.error("CyberSource prefix doesn't match: %s != %s", prefix, settings.CYBERSOURCE_REFERENCE_PREFIX)
+        raise ParseException("CyberSource prefix doesn't match")
+
+    order = Order.objects.get(id=order_id)
+    if order.status != Order.CREATED:
+        # This shouldn't happen unless the user is submitting the generated form twice
+        # Or there's some race condition somewhere
+        raise EcommerceException("Order {} is expected to have status 'created'".format(order_id))
+
+    return order
