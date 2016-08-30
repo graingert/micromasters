@@ -21,6 +21,8 @@ import {
   SET_EMAIL_DIALOG_VISIBILITY,
   SET_ENROLL_DIALOG_VISIBILITY,
   SET_ENROLL_SELECTED_PROGRAM,
+  SET_SIGNUP_DIALOG_VISIBILITY,
+  SET_SIGNUP_PROGRAM,
 
   clearUI,
   updateDialogText,
@@ -43,6 +45,8 @@ import {
   setEmailDialogVisibility,
   setEnrollDialogVisibility,
   setEnrollSelectedProgram,
+  setSignupDialogVisibility,
+  setSignupProgram,
 } from '../actions/ui';
 import { INITIAL_UI_STATE } from '../reducers/ui';
 import { PROFILE_STEP_LABELS } from '../constants';
@@ -291,6 +295,28 @@ describe('ui reducers', () => {
         ]).then(state => {
           assert.equal(state.enrollSelectedProgram, "value");
         });
+      });
+    });
+  });
+
+  describe('Signup dialog visibility', () => {
+    [true, false].forEach(bool => {
+      it(`should let you set signup dialog visibility to ${bool}`, () => {
+        return dispatchThen(setSignupDialogVisibility(bool), [
+          SET_SIGNUP_DIALOG_VISIBILITY
+        ]).then(state => {
+          assert.equal(state.signupDialogVisibility, bool);
+        });
+      });
+    });
+  });
+
+  describe('Signup program selection', () => {
+    it('should let you set a program id', () => {
+      return dispatchThen(setSignupProgram(2), [
+        SET_SIGNUP_PROGRAM
+      ]).then(state => {
+        assert.equal(state.signupProgram, 2);
       });
     });
   });

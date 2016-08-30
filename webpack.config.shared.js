@@ -8,6 +8,7 @@ let babelQuerySettings = {
 module.exports = {
   entry: {
     'dashboard': ['babel-polyfill', './static/js/dashboard'],
+    'signup_dialog': './static/js/signup_dialog',
     'public': ['babel-polyfill', './static/js/public'],
     'style': './static/js/style',
     'style_public': './static/js/style_public',

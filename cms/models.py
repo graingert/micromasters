@@ -33,9 +33,16 @@ class HomePage(Page):
     ]
 
     def get_context(self, request):
+        def program_info(program):
+            return {
+                "title": program.title,
+                "id": program.id
+            }
+
         js_settings = {
             "gaTrackingID": settings.GA_TRACKING_ID,
-            "host": webpack_dev_server_host(request)
+            "host": webpack_dev_server_host(request),
+            "programs": [program_info(p) for p in Program.objects.filter(live=True)]
         }
 
         username = get_social_username(request.user)
@@ -45,6 +52,7 @@ class HomePage(Page):
         context["style_src"] = get_bundle_url(request, "style.js")
         context["public_src"] = get_bundle_url(request, "public.js")
         context["style_public_src"] = get_bundle_url(request, "style_public.js")
+        context["signup_dialog_src"] = get_bundle_url(request, "signup_dialog.js")
         context["authenticated"] = not request.user.is_anonymous()
         context["username"] = username
         context["js_settings_json"] = json.dumps(js_settings)

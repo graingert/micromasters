@@ -10,6 +10,7 @@ import Footer from '../components/Footer';
 import {
   FETCH_SUCCESS,
   FETCH_FAILURE,
+  FETCH_PROCESSING,
   fetchDashboard,
   clearDashboard,
 } from '../actions';
@@ -23,6 +24,7 @@ import {
   clearEnrollments,
   fetchProgramEnrollments,
   setCurrentProgramEnrollment,
+  addProgramEnrollment,
 } from '../actions/enrollments';
 import {
   setEnrollDialogVisibility,
@@ -36,7 +38,13 @@ import type {
   ProgramEnrollmentsState,
 } from '../flow/enrollmentTypes';
 import type { ProfileGetResult } from '../flow/profileTypes';
+import type { Dashboard } from '../flow/dashboardTypes';
+import type { Profile } from '../flow/profileTypes';
+import type { Dashboard } from '../flow/dashboardTypes';
+import type { ProgramEnrollmentsState } from '../flow/enrollmentTypes';
+import type { Profile } from '../flow/profileTypes';
 import type { UIState } from '../reducers/ui';
+import { filterPositiveInt } from '../util/util';
 
 const PROFILE_REGEX = /^\/profile\/?[a-z]?/;
 
@@ -71,6 +79,7 @@ class App extends React.Component {
     this.fetchEnrollments();
     this.requireProfileFilledOut();
     this.requireCompleteProfile();
+    this.updateProgramEnrollments();
   }
 
   componentWillUnmount() {
@@ -99,6 +108,22 @@ class App extends React.Component {
     const { enrollments, dispatch } = this.props;
     if (enrollments.getStatus === undefined) {
       dispatch(fetchProgramEnrollments());
+    }
+  }
+
+  updateProgramEnrollments() {
+    const { enrollments, dispatch } = this.props;
+    let programId = filterPositiveInt(window.localStorage.getItem("programId"));
+    if (
+      programId &&
+      enrollments.getStatus === FETCH_SUCCESS &&
+      enrollments.postStatus !== FETCH_PROCESSING
+    ) {
+      if ( !enrollments.programEnrollments.find(e => e.id === programId) ) {
+        dispatch(addProgramEnrollment(programId)).then(() => {
+          window.localStorage.removeItem("programId");
+        });
+      }
     }
   }
 

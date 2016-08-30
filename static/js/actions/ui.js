@@ -79,3 +79,9 @@ export const setEnrollDialogVisibility = createAction(SET_ENROLL_DIALOG_VISIBILI
 
 export const SET_ENROLL_SELECTED_PROGRAM = 'SET_ENROLL_SELECTED_PROGRAM';
 export const setEnrollSelectedProgram = createAction(SET_ENROLL_SELECTED_PROGRAM);
+
+export const SET_SIGNUP_DIALOG_VISIBILITY = 'SET_SIGNUP_DIALOG_VISIBILITY';
+export const setSignupDialogVisibility = createAction(SET_SIGNUP_DIALOG_VISIBILITY);
+
+export const SET_SIGNUP_PROGRAM = 'SET_SIGNUP_PROGRAM';
+export const setSignupProgram = createAction(SET_SIGNUP_PROGRAM);

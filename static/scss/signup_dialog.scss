@@ -1,0 +1,38 @@
+.signup-dialog {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 30px;
+  color: $font-black;
+
+  .logos {
+    margin: 10px auto;
+
+    img {
+      height: 35px;
+    }
+
+    img:first-child {
+      margin-right: 40px;
+    }
+  }
+
+  span {
+    font-size: 13px;
+    margin: 15px 0;
+    font-weight: 300;
+  }
+
+  .program-select {
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  .terms-of-service-text {
+    font-size: 11px;
+    max-width: 80%;
+    margin: 20px auto;
+    font-weight: 300;
+    line-height: 14px;
+  }
+}

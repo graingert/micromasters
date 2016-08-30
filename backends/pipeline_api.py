@@ -72,6 +72,7 @@ def update_profile_from_edx(backend, user, response, is_new, *args, **kwargs):  
         pass
     user_profile.gender = user_profile_edx.get('gender')
     user_profile.edx_mailing_address = user_profile_edx.get('mailing_address')
+    user_profile.agreed_to_terms_of_service = True
 
     user_profile.save()
 
