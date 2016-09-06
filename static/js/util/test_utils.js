@@ -1,5 +1,6 @@
 import TestUtils from 'react-addons-test-utils';
 import { assert } from 'chai';
+import sinon from 'sinon';
 
 export const modifyTextField = (field, text) => {
   field.value = text;
@@ -34,3 +35,23 @@ export const activeDeleteDialog = () => (
 export const noActiveDeleteDialogs = () => (
   noActiveDialogs('deletion-confirmation')
 );
+
+export const localStorageMock = (init = {}) => {
+  let storage = init;
+
+  const getItem = key => storage[key] || null;
+
+  const setItem = (key, value) => {
+    storage[key] = value || "";
+  };
+
+  const removeItem = key => {
+    delete storage[key];
+  };
+
+  return {
+    getItem: sinon.spy(getItem),
+    setItem: sinon.spy(setItem),
+    removeItem: sinon.spy(removeItem),
+  };
+};

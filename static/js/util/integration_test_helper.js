@@ -24,6 +24,7 @@ import {
 } from '../actions/enrollments';
 import rootReducer from '../reducers';
 import { makeDashboardRoutes } from '../dashboard_routes';
+import { localStorageMock } from '../util/test_utils';
 
 class IntegrationTestHelper {
 
@@ -49,10 +50,13 @@ class IntegrationTestHelper {
     this.browserHistory.listen(url => {
       this.currentLocation = url;
     });
+
+    window.localStorage = localStorageMock();
   }
 
   cleanup() {
     this.sandbox.restore();
+    window.localStorage = undefined;
   }
 
   renderComponent(url = "/", extraTypesToAssert = [], isSuccessExpected = true) {
