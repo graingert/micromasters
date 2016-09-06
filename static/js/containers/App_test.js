@@ -19,6 +19,9 @@ import {
 import {
   CLEAR_ENROLLMENTS,
   RECEIVE_GET_PROGRAM_ENROLLMENTS_FAILURE,
+  REQUEST_ADD_PROGRAM_ENROLLMENT,
+  RECEIVE_ADD_PROGRAM_ENROLLMENT_SUCCESS,
+  RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
 } from '../actions/enrollments';
 import * as enrollmentActions from '../actions/enrollments';
 import {
@@ -34,10 +37,11 @@ import {
   PRIVACY_STEP,
 } from '../constants';
 import IntegrationTestHelper from '../util/integration_test_helper';
+import * as api from '../util/api';
 
 describe('App', () => {
   let listenForActions, renderComponent, helper;
-  let editProfileActions;
+  let editProfileActions, addProgramEnrollmentStub;
 
   beforeEach(() => {
     helper = new IntegrationTestHelper();
@@ -48,6 +52,7 @@ describe('App', () => {
       UPDATE_PROFILE_VALIDATION,
       SET_PROFILE_STEP,
     ];
+    addProgramEnrollmentStub = helper.sandbox.stub(api, 'addProgramEnrollment');
   });
 
   afterEach(() => {
@@ -58,6 +63,89 @@ describe('App', () => {
     return renderComponent("/dashboard").then(([, div]) => {
       return listenForActions([CLEAR_DASHBOARD, CLEAR_PROFILE, CLEAR_UI, CLEAR_ENROLLMENTS], () => {
         ReactDOM.unmountComponentAtNode(div);
+      });
+    });
+  });
+
+  describe('program enrollments', () => {
+    describe('adding a new program enrollment', () => {
+      let newEnrollment = [{id: 2, title: 'A new program'}];
+
+      beforeEach(() => {
+        addProgramEnrollmentStub.returns(Promise.resolve(newEnrollment));
+        window.localStorage.setItem("programId", "2");
+      });
+
+      it('should call the API if a program ID is present', () => {
+        return renderComponent('/dashboard', [
+          REQUEST_ADD_PROGRAM_ENROLLMENT,
+          RECEIVE_ADD_PROGRAM_ENROLLMENT_SUCCESS
+        ]).then(() => {
+          assert(addProgramEnrollmentStub.calledWith(2), "API should be called");
+        });
+      });
+
+      it('should retrieve the program id from localStorage', () => {
+        return renderComponent('/dashboard', [
+          REQUEST_ADD_PROGRAM_ENROLLMENT,
+          RECEIVE_ADD_PROGRAM_ENROLLMENT_SUCCESS
+        ]).then(() => {
+          assert(
+            window.localStorage.getItem.calledWith("programId"),
+            "getItem should be called with 'programId'"
+          );
+        });
+      });
+
+      it('should delete the program id from localStorage if there is no API error', () => {
+        return renderComponent('/dashboard', [
+          REQUEST_ADD_PROGRAM_ENROLLMENT,
+          RECEIVE_ADD_PROGRAM_ENROLLMENT_SUCCESS
+        ]).then(() => {
+          assert(
+            window.localStorage.removeItem.calledWith("programId"),
+            "removeItem should be called to remove 'programId'"
+          );
+        });
+      });
+
+      it('should delete the program id if the API returns a 404', () => {
+        addProgramEnrollmentStub.returns(Promise.reject({errorStatusCode: 404}));
+
+        return renderComponent('/dashboard', [
+          REQUEST_ADD_PROGRAM_ENROLLMENT,
+          RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
+        ]).then(() => {
+          assert(
+            window.localStorage.removeItem.calledWith("programId"),
+            "removeItem should be called to remove 'programId'"
+          );
+        });
+      });
+
+      it('should set programIdFailed in localStorage if the API returns another error', () => {
+        addProgramEnrollmentStub.returns(Promise.reject({errorStatusCode: 500}));
+
+        return renderComponent('/dashboard', [
+          REQUEST_ADD_PROGRAM_ENROLLMENT,
+          RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
+        ]).then(() => {
+          assert(
+            window.localStorage.removeItem.calledWith("programId"),
+            "removeItem should be called to remove 'programId'"
+          );
+
+          assert(
+            window.localStorage.setItem.calledWith("programIdFailed", 2),
+            "failed program Id should be persisted"
+          );
+        });
+      });
+    });
+
+    it('should not call the API if there is no program ID in localStorage', () => {
+      return renderComponent('/dashboard').then(() => {
+        assert(addProgramEnrollmentStub.notCalled, "API should not have been called");
       });
     });
   });

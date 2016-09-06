@@ -47,7 +47,7 @@ export const addProgramEnrollment = (programId: number): Dispatcher<ProgramEnrol
       then(enrollment => dispatch(receiveAddProgramEnrollmentSuccess(enrollment))).
       catch(error => {
         dispatch(receiveAddProgramEnrollmentFailure(error));
-        // the exception is assumed handled and will not be propagated
+        return Promise.reject(error);
       });
   };
 };

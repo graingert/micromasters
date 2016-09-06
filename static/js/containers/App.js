@@ -11,6 +11,7 @@ import {
   FETCH_SUCCESS,
   FETCH_FAILURE,
   FETCH_PROCESSING,
+  FETCH_FAILURE,
   fetchDashboard,
   clearDashboard,
 } from '../actions';
@@ -117,11 +118,19 @@ class App extends React.Component {
     if (
       programId &&
       enrollments.getStatus === FETCH_SUCCESS &&
-      enrollments.postStatus !== FETCH_PROCESSING
+      enrollments.postStatus !== FETCH_PROCESSING &&
+      enrollments.postStatus !== FETCH_FAILURE
     ) {
       if ( !enrollments.programEnrollments.find(e => e.id === programId) ) {
         dispatch(addProgramEnrollment(programId)).then(() => {
           window.localStorage.removeItem("programId");
+        }, e => {
+          window.localStorage.removeItem("programId");
+          if ( e.errorStatusCode === 404 ) {
+            window.localStorage.removeItem("programId");
+          } else {
+            window.localStorage.setItem("programIdFailed", programId);
+          }
         });
       }
     }

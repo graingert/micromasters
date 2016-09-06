@@ -56,7 +56,7 @@ class IntegrationTestHelper {
 
   cleanup() {
     this.sandbox.restore();
-    window.localStorage = undefined;
+    window.localStorage.reset();
   }
 
   renderComponent(url = "/", extraTypesToAssert = [], isSuccessExpected = true) {

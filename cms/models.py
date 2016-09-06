@@ -34,6 +34,7 @@ class HomePage(Page):
 
     def get_context(self, request):
         def program_info(program):
+            """formats program info for the homepage dialog"""
             return {
                 "title": program.title,
                 "id": program.id
