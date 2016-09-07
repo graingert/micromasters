@@ -236,7 +236,7 @@ class ProfileSerializer(ProfileBaseSerializer):
             'edx_level_of_education',
             'education'
         )
-        read_only_fields = ('edx_level_of_education',)
+        read_only_fields = ('edx_level_of_education','agreed_to_terms_of_service',)
 
 
 class ProfileLimitedSerializer(ProfileBaseSerializer):
@@ -270,7 +270,7 @@ class ProfileLimitedSerializer(ProfileBaseSerializer):
             'edx_level_of_education',
             'education'
         )
-        read_only_fields = ('edx_level_of_education',)
+        read_only_fields = ('edx_level_of_education','agreed_to_terms_of_service',)
 
 
 class ProfileFilledOutSerializer(ProfileSerializer):
