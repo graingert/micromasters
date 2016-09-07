@@ -39,20 +39,20 @@ export const noActiveDeleteDialogs = () => (
 export const localStorageMock = (init = {}) => {
   let storage = init;
 
-  const getItem = sinon.spy(key => storage[key] || null);
+  const sandbox = sinon.sandbox.create();
 
-  const setItem = sinon.spy((key, value) => {
+  const getItem = sandbox.spy(key => storage[key] || null);
+
+  const setItem = sandbox.spy((key, value) => {
     storage[key] = value || "";
   });
 
-  const removeItem = sinon.spy(key => {
+  const removeItem = sandbox.spy(key => {
     delete storage[key];
   });
 
   const reset = () => {
-    [getItem, setItem, removeItem].forEach(func => {
-      func.reset();
-    });
+    sandbox.reset();
     storage = {};
   };
 
