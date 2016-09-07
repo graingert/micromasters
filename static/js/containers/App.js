@@ -3,6 +3,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
+import R from 'ramda';
 
 import ErrorMessage from '../components/ErrorMessage';
 import Navbar from '../components/Navbar';
@@ -114,24 +115,25 @@ class App extends React.Component {
 
   updateProgramEnrollments() {
     const { enrollments, dispatch } = this.props;
-    let programId = filterPositiveInt(window.localStorage.getItem("programId"));
+    let programData = window.localStorage.getItem("signupDialogRedux");
     if (
-      programId &&
+      programData &&
       enrollments.getStatus === FETCH_SUCCESS &&
       enrollments.postStatus !== FETCH_PROCESSING &&
       enrollments.postStatus !== FETCH_FAILURE
     ) {
-      if ( !enrollments.programEnrollments.find(e => e.id === programId) ) {
-        dispatch(addProgramEnrollment(programId)).then(() => {
-          window.localStorage.removeItem("programId");
-        }, e => {
-          window.localStorage.removeItem("programId");
-          if ( e.errorStatusCode === 404 ) {
-            window.localStorage.removeItem("programId");
-          } else {
-            window.localStorage.setItem("programIdFailed", programId);
-          }
-        });
+      let programId = filterPositiveInt(R.prop('program', JSON.parse(programData)));
+      if ( programId && !enrollments.programEnrollments.find(e => e.id === programId) ) {
+        dispatch(addProgramEnrollment(programId)).then(
+          () => {
+            window.localStorage.removeItem("signupDialogRedux");
+          },
+          e => {
+            window.localStorage.removeItem("signupDialogRedux");
+            if ( e.errorStatusCode !== 404 ) {
+              window.localStorage.setItem("programIdFailed", programId);
+            }
+          });
       }
     }
   }

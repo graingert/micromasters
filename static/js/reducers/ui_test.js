@@ -298,26 +298,4 @@ describe('ui reducers', () => {
       });
     });
   });
-
-  describe('Signup dialog visibility', () => {
-    [true, false].forEach(bool => {
-      it(`should let you set signup dialog visibility to ${bool}`, () => {
-        return dispatchThen(setSignupDialogVisibility(bool), [
-          SET_SIGNUP_DIALOG_VISIBILITY
-        ]).then(state => {
-          assert.equal(state.signupDialogVisibility, bool);
-        });
-      });
-    });
-  });
-
-  describe('Signup program selection', () => {
-    it('should let you set a program id', () => {
-      return dispatchThen(setSignupProgram(2), [
-        SET_SIGNUP_PROGRAM
-      ]).then(state => {
-        assert.equal(state.signupProgram, 2);
-      });
-    });
-  });
 });

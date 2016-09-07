@@ -8,15 +8,15 @@ import MenuItem from 'material-ui/MenuItem';
 import R from 'ramda';
 
 import {
-  setSignupDialogVisibility,
-  setSignupProgram,
-} from '../actions/ui';
+  setDialogVisibility,
+  setProgram,
+} from '../actions/signup_dialog';
 
 type signupProps = {
   open:                 boolean,
   program:              number,
   setDialogVisibility:  (b: boolean) => void,
-  setSignupProgram:     (n: number) => void,
+  setProgram:     (n: number) => void,
 };
 
 const dialogStyle = {
@@ -27,11 +27,11 @@ const menuItems = R.map(program => (
   <MenuItem value={program.id} key={program.id} primaryText={program.title} />
 ));
 
-const selectProgram = (setSignupProgram, program) => (
+const selectProgram = (setProgram, program) => (
   <SelectField
     style={{width: "95%"}}
     hintText="Select"
-    onChange={setSignupProgram}
+    onChange={setProgram}
     value={program}
   >
     { menuItems(SETTINGS.programs) }
@@ -42,7 +42,7 @@ const SignupDialog = ({
   open,
   program,
   setDialogVisibility,
-  setSignupProgram
+  setProgram
 }: signupProps) => {
   return <Dialog
     open={open}
@@ -62,7 +62,7 @@ const SignupDialog = ({
       </span>
       <div className="program-select">
         Which MicroMasters program are you signing up for?
-        { selectProgram(setSignupProgram, program) }
+        { selectProgram(setProgram, program) }
       </div>
       <a className="mm-button signup" href="/login/edxorg">
         Continue with edX
@@ -85,21 +85,21 @@ const SignupDialog = ({
 };
 
 const mapStateToProps = state => ({
-  open: state.ui.signupDialogVisibility,
-  program: state.ui.signupProgram,
+  open: state.dialogVisibility,
+  program: state.program,
 });
 
-const setSignupProgramLS = id => window.localStorage.setItem("programId", id);
+const setProgramLS = id => window.localStorage.setItem("programId", id);
 
 const mapDispatchToProps = dispatch => {
-  const setSignupProgramHelper = (e,k,v) => {
-    setSignupProgramLS(v);
-    dispatch(setSignupProgram(v));
+  const setProgramHelper = (e,k,v) => {
+    setProgramLS(v);
+    dispatch(setProgram(v));
   };
 
   return {
-    setDialogVisibility: visible => dispatch(setSignupDialogVisibility(visible)),
-    setSignupProgram: setSignupProgramHelper,
+    setDialogVisibility: visible => dispatch(setDialogVisibility(visible)),
+    setProgram: setProgramHelper,
   };
 };
 

@@ -68,12 +68,16 @@ describe('App', () => {
   });
 
   describe('program enrollments', () => {
+    let setLocalStorage = id => {
+      window.localStorage.setItem("signupDialogRedux", JSON.stringify({program: id}));
+    };
+
     describe('adding a new program enrollment', () => {
       let newEnrollment = [{id: 2, title: 'A new program'}];
 
       beforeEach(() => {
         addProgramEnrollmentStub.returns(Promise.resolve(newEnrollment));
-        window.localStorage.setItem("programId", "2");
+        setLocalStorage(2);
       });
 
       it('should call the API if a program ID is present', () => {
@@ -91,7 +95,7 @@ describe('App', () => {
           RECEIVE_ADD_PROGRAM_ENROLLMENT_SUCCESS
         ]).then(() => {
           assert(
-            window.localStorage.getItem.calledWith("programId"),
+            window.localStorage.getItem.calledWith("signupDialogRedux"),
             "getItem should be called with 'programId'"
           );
         });
@@ -103,7 +107,7 @@ describe('App', () => {
           RECEIVE_ADD_PROGRAM_ENROLLMENT_SUCCESS
         ]).then(() => {
           assert(
-            window.localStorage.removeItem.calledWith("programId"),
+            window.localStorage.removeItem.calledWith("signupDialogRedux"),
             "removeItem should be called to remove 'programId'"
           );
         });
@@ -117,13 +121,13 @@ describe('App', () => {
           RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
         ]).then(() => {
           assert(
-            window.localStorage.removeItem.calledWith("programId"),
+            window.localStorage.removeItem.calledWith("signupDialogRedux"),
             "removeItem should be called to remove 'programId'"
           );
         });
       });
 
-      it('should set programIdFailed in localStorage if the API returns another error', () => {
+      it.only('should set programIdFailed in localStorage if the API returns another error', () => {
         addProgramEnrollmentStub.returns(Promise.reject({errorStatusCode: 500}));
 
         return renderComponent('/dashboard', [
@@ -131,7 +135,7 @@ describe('App', () => {
           RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
         ]).then(() => {
           assert(
-            window.localStorage.removeItem.calledWith("programId"),
+            window.localStorage.removeItem.calledWith("signupDialogRedux"),
             "removeItem should be called to remove 'programId'"
           );
 

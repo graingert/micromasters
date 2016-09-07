@@ -4,29 +4,40 @@ import { compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import persistState from 'redux-localstorage';
-import rootReducer from '../reducers';
 
-let createStoreWithMiddleware;
-if (process.env.NODE_ENV !== "production") {
-  createStoreWithMiddleware = compose(
-    applyMiddleware(
-      thunkMiddleware,
-      createLogger()
-    ),
-    persistState("currentProgramEnrollment"),
-    window.devToolsExtension ? window.devToolsExtension() : f => f
-  )(createStore);
-} else {
-  createStoreWithMiddleware = compose(
-    applyMiddleware(
-      thunkMiddleware
-    ),
-    persistState("currentProgramEnrollment")
-  )(createStore);
-}
+import rootReducer from '../reducers';
+import {
+  signupDialog,
+  INITIAL_SIGNUP_STATE
+} from '../reducers/signup_dialog';
+
+const notProd = () => process.env.NODE_ENV !== "production";
+
+const middleware = () =>  {
+  let ware = [ thunkMiddleware ];
+  if ( notProd() ) {
+    ware.push(createLogger());
+  }
+  return applyMiddleware(...ware);
+};
+
+const devTools = () => (
+  notProd() && window.devToolsExtension ? window.devToolsExtension() : f => f
+);
+
+const createPersistantStore = compose(
+  persistState('program', { key: 'signupDialogRedux' }),
+  middleware(),
+  devTools()
+)(createStore);
+
+const createNormalStore = compose(
+  middleware(),
+  devTools()
+)(createStore);
 
 export default function configureStore(initialState: ?Object) {
-  const store = createStoreWithMiddleware(rootReducer, initialState);
+  const store = createNormalStore(rootReducer, initialState);
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
@@ -39,3 +50,7 @@ export default function configureStore(initialState: ?Object) {
 
   return store;
 }
+
+export const signupDialogStore = () => (
+  createPersistantStore(signupDialog, INITIAL_SIGNUP_STATE)
+);
