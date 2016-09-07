@@ -66,21 +66,21 @@ class App extends React.Component {
     router:   React.PropTypes.object.isRequired
   };
 
-  componentDidMount() {
-    this.fetchUserProfile(SETTINGS.username);
-    this.fetchDashboard();
-    this.fetchEnrollments();
-    this.requireProfileFilledOut();
-    this.requireCompleteProfile();
-  }
-
-  componentDidUpdate() {
+  updateRequirements() {
     this.fetchUserProfile(SETTINGS.username);
     this.fetchDashboard();
     this.fetchEnrollments();
     this.requireProfileFilledOut();
     this.requireCompleteProfile();
     this.updateProgramEnrollments();
+  }
+
+  componentDidMount() {
+    this.updateRequirements();
+  }
+
+  componentDidUpdate() {
+    this.updateRequirements();
   }
 
   componentWillUnmount() {
