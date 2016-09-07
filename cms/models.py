@@ -13,18 +13,15 @@ from wagtail.wagtailadmin.edit_handlers import FieldPanel, InlinePanel, MultiFie
 
 
 from courses.models import Program
+from courses.serializers import ProgramSerializer
 from micromasters.utils import webpack_dev_server_host
 from profiles.api import get_social_username
 from ui.views import get_bundle_url
 
-def program_info(programs):
-    """formats program info for the homepage dialog"""
-    def format_info(program):
-        return {
-            "title": program.title,
-            "id": program.id
-        }
-    return [format_info(p) for p in programs]
+
+def programs_for_sign_up(programs):
+    """formats program info for the signup dialogs"""
+    return [ProgramSerializer().to_representation(p) for p in programs]
 
 
 class HomePage(Page):
@@ -46,7 +43,7 @@ class HomePage(Page):
         js_settings = {
             "gaTrackingID": settings.GA_TRACKING_ID,
             "host": webpack_dev_server_host(request),
-            "programs": program_info(programs),
+            "programs": programs_for_sign_up(programs),
         }
 
         username = get_social_username(request.user)
@@ -112,7 +109,7 @@ class ProgramPage(Page):
             "gaTrackingID": settings.GA_TRACKING_ID,
             "host": webpack_dev_server_host(request),
             "programId": self.program.id,
-            "programs": program_info(programs),
+            "programs": programs_for_sign_up(programs),
         }
         username = get_social_username(request.user)
         context = super(ProgramPage, self).get_context(request)
