@@ -27,7 +27,6 @@ const menuItems = R.map(program => (
   <MenuItem value={program.id} key={program.id} primaryText={program.title} />
 ));
 
-
 const selectProgram = (setSignupProgram, program) => (
   <SelectField
     style={{width: "95%"}}
