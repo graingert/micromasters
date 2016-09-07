@@ -4,7 +4,10 @@ import { Provider } from 'react-redux';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
-import { setSignupDialogVisibility } from './actions/ui';
+import {
+  setSignupDialogVisibility,
+  setSignupProgram,
+} from './actions/ui';
 import configureStore from './store/configureStore';
 import SignupDialog from './containers/SignupDialog';
 
@@ -22,6 +25,10 @@ window.openDialog = openDialog;
 const logoLink = document.querySelector('a.navbar-brand');
 
 logoLink.onClick = openDialog;
+
+if ( typeof SETTINGS.program === 'number' ) {
+  store.dispatch(setSignupProgram(SETTINGS.program));
+}
 
 ReactDOM.render(
   <MuiThemeProvider muiTheme={getMuiTheme()}>

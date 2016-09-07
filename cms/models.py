@@ -17,6 +17,15 @@ from micromasters.utils import webpack_dev_server_host
 from profiles.api import get_social_username
 from ui.views import get_bundle_url
 
+def program_info(programs):
+    """formats program info for the homepage dialog"""
+    def format_info(program):
+        return {
+            "title": program.title,
+            "id": program.id
+        }
+    return [format_info(p) for p in programs]
+
 
 class HomePage(Page):
     """
@@ -33,23 +42,17 @@ class HomePage(Page):
     ]
 
     def get_context(self, request):
-        def program_info(program):
-            """formats program info for the homepage dialog"""
-            return {
-                "title": program.title,
-                "id": program.id
-            }
-
+        programs = Program.objects.filter(live=True)
         js_settings = {
             "gaTrackingID": settings.GA_TRACKING_ID,
             "host": webpack_dev_server_host(request),
-            "programs": [program_info(p) for p in Program.objects.filter(live=True)]
+            "programs": program_info(programs),
         }
 
         username = get_social_username(request.user)
         context = super(HomePage, self).get_context(request)
 
-        context["programs"] = Program.objects.filter(live=True)
+        context["programs"] = programs
         context["style_src"] = get_bundle_url(request, "style.js")
         context["public_src"] = get_bundle_url(request, "public.js")
         context["style_public_src"] = get_bundle_url(request, "style_public.js")
@@ -104,9 +107,12 @@ class ProgramPage(Page):
     ]
 
     def get_context(self, request):
+        programs = Program.objects.filter(live=True)
         js_settings = {
             "gaTrackingID": settings.GA_TRACKING_ID,
-            "host": webpack_dev_server_host(request)
+            "host": webpack_dev_server_host(request),
+            "programId": self.program.id,
+            "programs": program_info(programs),
         }
         username = get_social_username(request.user)
         context = super(ProgramPage, self).get_context(request)
@@ -115,6 +121,7 @@ class ProgramPage(Page):
         context["public_src"] = get_bundle_url(request, "public.js")
         context["style_public_src"] = get_bundle_url(request, "style_public.js")
         context["authenticated"] = not request.user.is_anonymous()
+        context["signup_dialog_src"] = get_bundle_url(request, "signup_dialog.js")
         context["username"] = username
         context["js_settings_json"] = json.dumps(js_settings)
         context["title"] = self.title
