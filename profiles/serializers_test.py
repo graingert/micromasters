@@ -381,15 +381,6 @@ class ProfileFilledOutTests(ESTestCase):
             ProfileFilledOutSerializer(data=self.data).is_valid(raise_exception=True)
         assert ex.exception.args[0] == {'non_field_errors': ['filled_out cannot be set to false']}
 
-    def test_agreed_to_terms_of_service_false(self):
-        """
-        agreed_to_terms_of_service cannot be set to false
-        """
-        self.data['agreed_to_terms_of_service'] = False
-        with self.assertRaises(ValidationError) as ex:
-            ProfileFilledOutSerializer(data=self.data).is_valid(raise_exception=True)
-        assert ex.exception.args[0] == {'non_field_errors': ['agreed_to_terms_of_service cannot be set to false']}
-
     def test_required_fields(self):
         """
         All fields are required after a profile is marked filled_out
