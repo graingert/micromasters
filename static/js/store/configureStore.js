@@ -4,6 +4,8 @@ import { compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import persistState from 'redux-localstorage';
+import filter from 'redux-localstorage-filter';
+import adapter from 'redux-localstorage/lib/adapters/localStorage';
 
 import rootReducer from '../reducers';
 import {
@@ -25,8 +27,8 @@ const devTools = () => (
   notProd() && window.devToolsExtension ? window.devToolsExtension() : f => f
 );
 
-const createPersistantStore = compose(
-  persistState('program', { key: 'signupDialogRedux' }),
+const createPersistantStore = persistance => compose(
+  persistance,
   middleware(),
   devTools()
 )(createStore);
@@ -34,6 +36,10 @@ const createPersistantStore = compose(
 const createNormalStore = compose(
   middleware(),
   devTools()
+)(createStore);
+
+const createPersistantTestStore = persistance => compose(
+  persistance,
 )(createStore);
 
 export default function configureStore(initialState: ?Object) {
@@ -51,6 +57,22 @@ export default function configureStore(initialState: ?Object) {
   return store;
 }
 
-export const signupDialogStore = () => (
-  createPersistantStore(signupDialog, INITIAL_SIGNUP_STATE)
-);
+export const signupDialogStore = (test: boolean = false) => {
+  const storage = compose(
+    filter(['program']),
+  )(adapter(window.localStorage));
+
+  const persistance = persistState(
+    storage, 'signupDialogRedux'
+  );
+
+  if ( test ) {
+    return createPersistantTestStore(persistance)(
+      signupDialog, INITIAL_SIGNUP_STATE
+    );
+  } else {
+    return createPersistantStore(persistance)(
+      signupDialog, INITIAL_SIGNUP_STATE
+    );
+  }
+};
