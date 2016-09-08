@@ -133,7 +133,8 @@ class App extends React.Component {
             if ( e.errorStatusCode !== 404 ) {
               window.localStorage.setItem("programIdFailed", programId);
             }
-          });
+          }
+        );
       }
     }
   }
