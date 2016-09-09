@@ -459,9 +459,9 @@ describe("UserPage", function() {
       };
 
       it('shows the employment history component', () => {
-        return renderComponent(`/users/${SETTINGS.username}`, userActions).then(([, div]) => {
-          let title = div.getElementsByClassName('profile-card-header')[1];
-          assert.equal(title.textContent, 'Employment');
+        return renderComponent(`/users/${SETTINGS.username}`, userActions).then(([wrapper, div]) => {
+          let headerText = wrapper.find('#work-history-card').find('.profile-card-header').text();
+          assert.equal(headerText, 'Employment');
         });
       });
 

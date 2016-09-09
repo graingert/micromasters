@@ -9,10 +9,15 @@ import _ from 'lodash';
 import moment from 'moment';
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 
-import { generateNewWorkHistory, userPrivilegeCheck } from '../util/util';
+import { userPrivilegeCheck } from '../util/util';
 import { workEntriesByDate } from '../util/sorting';
 import { employmentValidation } from '../util/validation';
 import ProfileFormFields from '../util/ProfileFormFields';
+import {
+  openEditWorkHistoryForm,
+  openNewWorkHistoryForm,
+  deleteWorkHistoryEntry,
+} from '../util/profile_history_edit';
 import ConfirmDeletion from './ConfirmDeletion';
 import SelectField from './inputs/SelectField';
 import CountrySelectField from './inputs/CountrySelectField';
@@ -40,13 +45,22 @@ class EmploymentForm extends ProfileFormFields {
     errors:                           ValidationErrors,
     setWorkDialogVisibility:          () => void,
     setWorkDialogIndex:               () => void,
-    setWorkDegreeLevel:               () => void,
-    setWorkDegreeInclusions:          () => void,
     setWorkHistoryEdit:               AsyncActionHelper,
     deletionIndex:                    number,
-    setShowWorkDeleteAllDialog:       (foo: boolean) => void,
     showSwitch:                       boolean,
     validator:                        Validator|UIValidator,
+  };
+
+  openNewWorkHistoryForm: Function = (): void => {
+    openNewWorkHistoryForm.call(this);
+  };
+
+  openEditWorkHistoryForm: Function = (index: number): void => {
+    openEditWorkHistoryForm.call(this, index);
+  };
+
+  deleteWorkHistoryEntry: Function = (): void => {
+    deleteWorkHistoryEntry.call(this);
   };
 
   saveWorkHistoryEntry: Function = (): void => {
@@ -54,25 +68,6 @@ class EmploymentForm extends ProfileFormFields {
     saveProfile(employmentValidation, profile, ui).then(() => {
       this.closeWorkDialog();
     });
-  };
-
-  handleRadioClick: Function = (): void => {
-    const {
-      ui,
-      setWorkHistoryEdit,
-      profile,
-      setShowWorkDeleteAllDialog,
-      validator,
-      updateProfile,
-    } = this.props;
-    if ( _.isEmpty(profile.work_history) ) {
-      setWorkHistoryEdit(!ui.workHistoryEdit).then(() => {
-        let clone = _.cloneDeep(profile);
-        updateProfile(clone, validator);
-      });
-    } else {
-      setShowWorkDeleteAllDialog(true);
-    }
   };
 
   closeWorkDialog: Function = (): void => {
@@ -83,42 +78,6 @@ class EmploymentForm extends ProfileFormFields {
     } = this.props;
     setWorkDialogVisibility(false);
     clearProfileEdit(username);
-  };
-
-  addWorkHistoryEntry: Function = (): void => {
-    const {
-      updateProfile,
-      profile,
-      setWorkDialogIndex,
-      setWorkDialogVisibility,
-      validator,
-    } = this.props;
-    let clone = Object.assign({}, profile, {
-      work_history: profile.work_history.concat(generateNewWorkHistory())
-    });
-    updateProfile(clone, validator);
-    setWorkDialogIndex(clone.work_history.length - 1);
-    setWorkDialogVisibility(true);
-  };
-
-  deleteWorkHistoryEntry: Function = (): void => {
-    const { saveProfile, profile, ui, deletionIndex } = this.props;
-    let clone = _.cloneDeep(profile);
-    clone['work_history'].splice(deletionIndex, 1);
-    saveProfile(employmentValidation, clone, ui);
-  };
-
-  deleteAllWorkHistoryEntries: Function = (): void => {
-    const { saveProfile, profile, ui, setWorkHistoryEdit } = this.props;
-    let clone = _.cloneDeep(profile);
-    clone['work_history'] = [];
-    saveProfile(employmentValidation, clone, ui);
-    setWorkHistoryEdit(false);
-  };
-
-  closeConfirmDeleteAllDialog: Function = (): void => {
-    const { setShowWorkDeleteAllDialog } = this.props;
-    setShowWorkDeleteAllDialog(false);
   };
 
   editWorkHistoryForm(): React$Element<*> {
@@ -190,48 +149,51 @@ class EmploymentForm extends ProfileFormFields {
         <Cell col={12} className="profile-form-row add" key={"I'm unique!"}>
           <a
             className="mm-minor-action"
-            onClick={this.addWorkHistoryEntry}
+            onClick={this.openNewWorkHistoryForm}
           >
-            Add another
+            Add employment
           </a>
         </Cell>
         );
       });
+      workHistoryRows.unshift(
+        <Cell col={12} className="profile-form-row profile-card-header" key={`header-row`}>
+          <span className="title">
+            Employment
+          </span>
+        </Cell>
+      );
       return workHistoryRows;
     }
   }
 
   jobRow (position: WorkHistoryEntry, index: number) {
     const {
-      setWorkDialogVisibility,
-      setWorkDialogIndex,
       errors,
       profile,
     } = this.props;
-    let editCallback = () => {
-      setWorkDialogIndex(index);
-      setWorkDialogVisibility(true);
-    };
-    let validationAlert = () => {
-      if (_.get(errors, ['work_history', String(index)])) {
-        return <IconButton name="error" onClick={editCallback} />;
-      }
-    };
+
     let dateFormat = date => moment(date).format("MM[/]YYYY");
     let endDateText = () => (
       _.isEmpty(position.end_date) ? "Current" : dateFormat(position.end_date)
     );
-    let deleteEntry = () => this.openWorkDeleteDialog(index);
+    let deleteEntry = () => this.openWorkDeleteDialog();
+    let editEntry = () => this.openEditWorkHistoryForm(index);
+    let validationAlert = () => {
+      if (_.get(errors, ['work_history', String(index)])) {
+        return <IconButton name="error" onClick={editEntry} />;
+      }
+    };
     let icons = () => {
-      return userPrivilegeCheck(profile, 
+      return userPrivilegeCheck(profile,
         () => (
           <div className="profile-row-icons">
             {validationAlert()}
-            <IconButton className="edit-button" name="edit" onClick={editCallback} />
+            <IconButton className="edit-button" name="edit" onClick={editEntry} />
             <IconButton className="delete-button" name="delete" onClick={deleteEntry} />
           </div>
         ),
-      () => <div />
+        () => <div />
       );
     };
     return (
@@ -245,21 +207,85 @@ class EmploymentForm extends ProfileFormFields {
           <div className="profile-row-date-range">
             {`${dateFormat(position.start_date)} - ${endDateText()}`}
           </div>
-          { userPrivilegeCheck(profile, icons, () => <div />) }
+          { icons() }
         </div>
       </Cell>
     );
   }
 
+  renderWorkQuestionForm () {
+    return <Cell col={12} className="profile-form-row profile-card-header">
+      <span>
+        Do you want to add an employer?
+      </span>
+      { this.renderWorkRadioSwitch() }
+    </Cell>
+  }
+
+  renderWorkRadioSwitch () {
+    const {
+      ui: { workHistoryAnswer }
+    } = this.props;
+    let valueSelected = workHistoryAnswer !== undefined ? "false" : null;
+    let radioIconStyle = {'marginRight': '8px'};
+    return (
+      <RadioButtonGroup
+        className="profile-radio-switch"
+        name={"work-history-switch"}
+        onChange={(event, value)=> this.handleRadioClick(value)}
+        valueSelected={valueSelected}
+      >
+        <RadioButton value={"true"} label="Yes" iconStyle={radioIconStyle} style={{'marginRight': '30px'}} />
+        <RadioButton value={"false"} label="No" iconStyle={radioIconStyle} style={{'marginRight': '15px'}} />
+      </RadioButtonGroup>
+    );
+  }
+
+  handleRadioClick: Function = (value: string): void => {
+    const {
+      setWorkHistoryAnswer,
+      ui: { workHistoryAnswer }
+    } = this.props;
+    if (value === "true") {
+      if (workHistoryAnswer !== undefined) {
+        setWorkHistoryAnswer();
+      }
+      this.openNewWorkHistoryForm();
+    } else {
+      setWorkHistoryAnswer(false);
+    }
+  };
+
+  renderCardBody () {
+    const {
+      showSwitch,
+      profile: { work_history }
+    } = this.props;
+    if (showSwitch && work_history.length == 0) {
+      return this.renderWorkQuestionForm()
+    } else {
+      return this.renderWorkHistory()
+    }
+  }
+
+  renderCard () {
+    const {
+      ui: { workHistoryEdit }
+    } = this.props;
+    let cardClass = workHistoryEdit ? '' : 'profile-tab-card-greyed';
+    return <Card shadow={1} className={`profile-form ${cardClass}`} id={`work-history-card`}>
+      <Grid className="profile-form-grid">
+        { this.renderCardBody() }
+      </Grid>
+    </Card>
+  }
+
   render () {
     const {
       ui: {
-        workHistoryEdit,
         workDialogVisibility,
         showWorkDeleteDialog,
-        showWorkDeleteAllDialog,
       },
-      showSwitch,
     } = this.props;
     const actions = <ValidationAlert {...this.props}>
       <Button
@@ -275,24 +301,6 @@ class EmploymentForm extends ProfileFormFields {
         Save
       </Button>
     </ValidationAlert>;
-    let workSwitch = () => {
-      if ( showSwitch ) {
-        return (
-          <RadioButtonGroup 
-            className="profile-radio-switch"
-            name={"work-history-switch"}
-            onChange={(event, value)=> this.handleRadioClick(value)}
-            valueSelected={String(workHistoryEdit)}
-          >
-            <RadioButton value={"true"} label="Yes" />
-            <RadioButton value={"false"} label="No" />
-          </RadioButtonGroup>
-        );
-      }
-    };
-    let cardClass = () => (
-      workHistoryEdit ? '' : 'profile-tab-card-greyed'
-    );
 
     return (
       <div>
@@ -301,12 +309,6 @@ class EmploymentForm extends ProfileFormFields {
           open={showWorkDeleteDialog}
           close={this.closeConfirmDeleteDialog}
           confirmText="Delete this entry?"
-        />
-        <ConfirmDeletion
-          deleteFunc={this.deleteAllWorkHistoryEntries}
-          open={showWorkDeleteAllDialog}
-          close={this.closeConfirmDeleteAllDialog}
-          confirmText="Delete all work history entries?"
         />
         <Dialog
           open={workDialogVisibility}
@@ -317,17 +319,7 @@ class EmploymentForm extends ProfileFormFields {
         >
           {this.editWorkHistoryForm()}
         </Dialog>
-        <Card shadow={1} className={`profile-form ${cardClass()}`}>
-          <Grid className="profile-form-grid">
-            <Cell col={12} className="profile-form-row profile-card-header">
-              <span className="title">
-                Employment
-              </span>
-              { workSwitch() }
-            </Cell>
-            {this.renderWorkHistory()}
-          </Grid>
-        </Card>
+        { this.renderCard() }
       </div>
     );
   }

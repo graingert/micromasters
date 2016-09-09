@@ -103,7 +103,7 @@ export default class ProfileFormFields extends React.Component {
     setShowEducationDeleteDialog(true);
   };
 
-  openWorkDeleteDialog:Function = (index: number): void => {
+  openWorkDeleteDialog: Function = (index: number): void => {
     const { setDeletionIndex, setShowWorkDeleteDialog } = this.props;
     setDeletionIndex(index);
     setShowWorkDeleteDialog(true);

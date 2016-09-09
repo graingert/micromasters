@@ -15,6 +15,7 @@ import {
 import {
   setWorkHistoryEdit,
   setWorkDialogVisibility,
+  setWorkHistoryAnswer,
   setWorkDialogIndex,
   setEducationDialogVisibility,
   setEducationDialogIndex,
@@ -24,7 +25,6 @@ import {
   setShowEducationDeleteDialog,
   setShowWorkDeleteDialog,
   setDeletionIndex,
-  setShowWorkDeleteAllDialog,
 } from '../actions/ui';
 import { createSimpleActionHelpers, createAsyncActionHelpers } from '../util/redux';
 import type { ActionHelpers, AsyncActionHelpers } from '../util/redux';
@@ -114,6 +114,7 @@ class ProfileFormContainer extends React.Component {
     const { dispatch } = this.props;
     return createSimpleActionHelpers(dispatch, [
       ['setWorkDialogVisibility', setWorkDialogVisibility],
+      ['setWorkHistoryAnswer', setWorkHistoryAnswer],
       ['setWorkDialogIndex', setWorkDialogIndex],
       ['clearProfileEdit', clearProfileEdit],
       ['setEducationDialogVisibility', setEducationDialogVisibility],
@@ -124,7 +125,6 @@ class ProfileFormContainer extends React.Component {
       ['setShowEducationDeleteDialog', setShowEducationDeleteDialog],
       ['setShowWorkDeleteDialog', setShowWorkDeleteDialog],
       ['setDeletionIndex', setDeletionIndex],
-      ['setShowWorkDeleteAllDialog', setShowWorkDeleteAllDialog],
     ]);
   };
 

@@ -14,7 +14,7 @@ import {
   openEditEducationForm,
   openNewEducationForm,
   deleteEducationEntry,
-} from '../util/editEducation';
+} from '../util/profile_history_edit';
 import { userPrivilegeCheck } from '../util/util';
 import { HIGH_SCHOOL } from '../constants';
 import { educationEntriesByDate } from '../util/sorting';
@@ -91,7 +91,7 @@ export default class EducationDisplay extends ProfileFormFields {
             className="mm-minor-action"
             onClick={() => this.openNewEducationForm(HIGH_SCHOOL, null)}
           >
-            Add another
+            Add degree
           </a>
         </Cell>
       );

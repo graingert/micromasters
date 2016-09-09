@@ -14,7 +14,7 @@ import {
   openEditEducationForm,
   openNewEducationForm,
   deleteEducationEntry,
-} from '../util/editEducation';
+} from '../util/profile_history_edit';
 import { educationEntriesByDate } from '../util/sorting';
 import type { Option } from '../flow/generalTypes';
 import type {

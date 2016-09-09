@@ -14,7 +14,6 @@ import {
   receiveGetUserProfileSuccess,
 } from '../actions/profile';
 import {
-  SET_SHOW_WORK_DELETE_ALL_DIALOG,
   SET_WORK_HISTORY_EDIT,
 
   setWorkHistoryEdit,
@@ -89,98 +88,33 @@ describe("ProfilePage", function() {
 
   describe('switch toggling behavior', () => {
     beforeEach(() => {
+      let userProfile = Object.assign({}, _.cloneDeep(USER_PROFILE_RESPONSE), {
+        education: [],
+        work_history: []
+      });
       helper.profileGetStub.
         withArgs(SETTINGS.username).
         returns(
-          Promise.resolve(Object.assign({}, USER_PROFILE_RESPONSE, {
+          Promise.resolve(Object.assign({}, userProfile, {
             username: SETTINGS.username
           }))
         );
     });
 
+    let yesSwitchDialogTest = ([, div]) => {
+      let toggle = radioToggles(div, '.profile-radio-switch');
+      TestUtils.Simulate.change(toggle[0]);
+      activeDialog('dashboard-dialog');
+    };
+
     it('should launch a dialog to add an entry when an education switch is set to Yes', () => {
       setStep(EDUCATION_STEP);
-      return renderComponent('/profile').then(([, div]) => {
-        let toggle = radioToggles(div, '.profile-radio-switch');
-        TestUtils.Simulate.change(toggle[0]);
-        activeDialog('education-dashboard-dialog');
-      });
+      return renderComponent('/profile').then(yesSwitchDialogTest);
     });
 
-    it('should let you cancel deletion when toggling work history to No', () => {
+    it('should launch a dialog to add an entry when an employment switch is set to Yes', () => {
       setStep(EMPLOYMENT_STEP);
-      return renderComponent('/profile').then(([, div]) => {
-        let toggle = radioToggles(div, '.profile-radio-switch');
-
-        return listenForActions([
-          SET_SHOW_WORK_DELETE_ALL_DIALOG,
-          SET_SHOW_WORK_DELETE_ALL_DIALOG,
-        ], () => {
-          TestUtils.Simulate.change(toggle[1]);
-          let dialog = activeDeleteDialog();
-          let cancelButton = dialog.querySelector('.cancel-button');
-          TestUtils.Simulate.click(cancelButton);
-          let state = helper.store.getState();
-          let profile = state.profiles.jane.profile;
-          assert.equal(_.isEmpty(profile.work_history), false);
-        });
-      });
-    });
-
-    it('should confirm and let you delete when toggling the switch on work history', () => {
-      setStep(EMPLOYMENT_STEP);
-      return renderComponent('/profile').then(([, div]) => {
-        let updateProfile = _.cloneDeep(USER_PROFILE_RESPONSE);
-        updateProfile.username = SETTINGS.username;
-        updateProfile.work_history = [];
-
-        patchUserProfileStub.throws("Invalid arguments");
-        patchUserProfileStub.withArgs(SETTINGS.username, updateProfile).returns(
-          Promise.resolve(updateProfile)
-        );
-
-        let toggle = radioToggles(div, '.profile-radio-switch');
-        return listenForActions([
-          SET_SHOW_WORK_DELETE_ALL_DIALOG,
-          START_PROFILE_EDIT,
-          UPDATE_PROFILE_VALIDATION,
-          REQUEST_PATCH_USER_PROFILE,
-          SET_WORK_HISTORY_EDIT,
-          SET_SHOW_WORK_DELETE_ALL_DIALOG,
-          RECEIVE_PATCH_USER_PROFILE_SUCCESS,
-          CLEAR_PROFILE_EDIT,
-        ], () => {
-          TestUtils.Simulate.change(toggle[1]);
-          let dialog = activeDeleteDialog();
-          let deleteButton = dialog.querySelector('.delete-button');
-          TestUtils.Simulate.click(deleteButton);
-        }).then(() => {
-          let state = helper.store.getState();
-          let workHistory = state.profiles.jane.profile.work_history;
-          assert.deepEqual(workHistory, []);
-        });
-      });
-
-    });
-
-    it('shouldnt confirm when toggling the switch on work history if there are no entries', () => {
-      setStep(EMPLOYMENT_STEP);
-      return renderComponent('/profile').then(([, div]) => {
-        let emptyWorkHistory = Object.assign({}, USER_PROFILE_RESPONSE, {
-          work_history: []
-        });
-        helper.store.dispatch(receiveGetUserProfileSuccess(SETTINGS.username, emptyWorkHistory));
-
-        let toggle = radioToggles(div, '.profile-radio-switch');
-
-        return listenForActions([
-        ], () => {
-          TestUtils.Simulate.change(toggle[0]);
-          assert.isTrue(noActiveDeleteDialogs());
-          TestUtils.Simulate.change(toggle[1]);
-          assert.isTrue(noActiveDeleteDialogs());
-        });
-      });
+      return renderComponent('/profile').then(yesSwitchDialogTest);
     });
   });
 

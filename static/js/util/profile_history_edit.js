@@ -1,8 +1,8 @@
 // @flow
 import _ from 'lodash';
 
-import { generateNewEducation } from "../util/util";
-import { educationValidation } from '../util/validation';
+import { generateNewEducation, generateNewWorkHistory } from "../util/util";
+import { educationValidation, employmentValidation } from '../util/validation';
 
 export function openEditEducationForm(index: number) {
   const {
@@ -47,4 +47,33 @@ export function deleteEducationEntry () {
   saveProfile(educationValidation, clone, ui);
 }
 
+export function openNewWorkHistoryForm () {
+  const {
+    updateProfile,
+    profile,
+    setWorkDialogIndex,
+    setWorkDialogVisibility,
+    validator,
+  } = this.props;
+  let clone = Object.assign({}, profile);
+  clone['work_history'] = clone['work_history'].concat(generateNewWorkHistory());
+  updateProfile(clone, validator);
+  setWorkDialogIndex(clone.work_history.length - 1);
+  setWorkDialogVisibility(true);
+}
 
+export function openEditWorkHistoryForm(index: number) {
+  const {
+    setWorkDialogVisibility,
+    setWorkDialogIndex,
+  } = this.props;
+  setWorkDialogIndex(index);
+  setWorkDialogVisibility(true);
+}
+
+export function deleteWorkHistoryEntry () {
+  const { saveProfile, profile, ui } = this.props;
+  let clone = _.cloneDeep(profile);
+  clone['work_history'].splice(ui.deletionIndex, 1);
+  saveProfile(employmentValidation, clone, ui);
+}

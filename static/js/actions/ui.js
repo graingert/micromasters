@@ -30,6 +30,9 @@ export const setWorkDialogVisibility = createAction(SET_WORK_DIALOG_VISIBILITY);
 export const SET_WORK_DIALOG_INDEX = 'SET_WORK_DIALOG_INDEX';
 export const setWorkDialogIndex = createAction(SET_WORK_DIALOG_INDEX);
 
+export const SET_WORK_HISTORY_ANSWER = 'SET_WORK_HISTORY_ANSWER';
+export const setWorkHistoryAnswer = createAction(SET_WORK_HISTORY_ANSWER);
+
 // dashboard actions
 export const TOGGLE_DASHBOARD_EXPANDER = 'TOGGLE_DASHBOARD_EXPANDER';
 export const toggleDashboardExpander = createAction(TOGGLE_DASHBOARD_EXPANDER);
@@ -58,9 +61,6 @@ export const setShowWorkDeleteDialog = createAction(SET_SHOW_WORK_DELETE_DIALOG)
 
 export const SET_DELETION_INDEX = 'SET_DELETION_INDEX';
 export const setDeletionIndex = createAction(SET_DELETION_INDEX);
-
-export const SET_SHOW_WORK_DELETE_ALL_DIALOG = 'SET_SHOW_WORK_DELETE_ALL_DIALOG';
-export const setShowWorkDeleteAllDialog = createAction(SET_SHOW_WORK_DELETE_ALL_DIALOG);
 
 export const SET_PROFILE_STEP = 'SET_PROFILE_STEP';
 export const setProfileStep = createAction(SET_PROFILE_STEP);
