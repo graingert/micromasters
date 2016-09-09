@@ -14,8 +14,6 @@ import {
   receiveGetUserProfileSuccess,
 } from '../actions/profile';
 import {
-  SET_WORK_HISTORY_EDIT,
-
   setWorkHistoryEdit,
   setProfileStep,
 } from '../actions/ui';
@@ -28,11 +26,7 @@ import {
 } from '../constants';
 import IntegrationTestHelper from '../util/integration_test_helper';
 import * as api from '../util/api';
-import {
-  activeDialog,
-  activeDeleteDialog,
-  noActiveDeleteDialogs
-} from '../util/test_utils';
+import { activeDialog } from '../util/test_utils';
 
 describe("ProfilePage", function() {
   this.timeout(5000);  // eslint-disable-line no-invalid-this

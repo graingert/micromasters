@@ -459,7 +459,7 @@ describe("UserPage", function() {
       };
 
       it('shows the employment history component', () => {
-        return renderComponent(`/users/${SETTINGS.username}`, userActions).then(([wrapper, div]) => {
+        return renderComponent(`/users/${SETTINGS.username}`, userActions).then(([wrapper, ]) => {
           let headerText = wrapper.find('#work-history-card').find('.profile-card-header').text();
           assert.equal(headerText, 'Employment');
         });

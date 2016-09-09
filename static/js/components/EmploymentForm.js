@@ -45,6 +45,7 @@ class EmploymentForm extends ProfileFormFields {
     errors:                           ValidationErrors,
     setWorkDialogVisibility:          () => void,
     setWorkDialogIndex:               () => void,
+    setWorkHistoryAnswer:             () => void,
     setWorkHistoryEdit:               AsyncActionHelper,
     deletionIndex:                    number,
     showSwitch:                       boolean,
@@ -219,7 +220,7 @@ class EmploymentForm extends ProfileFormFields {
         Do you want to add an employer?
       </span>
       { this.renderWorkRadioSwitch() }
-    </Cell>
+    </Cell>;
   }
 
   renderWorkRadioSwitch () {
@@ -261,10 +262,10 @@ class EmploymentForm extends ProfileFormFields {
       showSwitch,
       profile: { work_history }
     } = this.props;
-    if (showSwitch && work_history.length == 0) {
-      return this.renderWorkQuestionForm()
+    if (showSwitch && work_history.length === 0) {
+      return this.renderWorkQuestionForm();
     } else {
-      return this.renderWorkHistory()
+      return this.renderWorkHistory();
     }
   }
 
@@ -277,7 +278,7 @@ class EmploymentForm extends ProfileFormFields {
       <Grid className="profile-form-grid">
         { this.renderCardBody() }
       </Grid>
-    </Card>
+    </Card>;
   }
 
   render () {
