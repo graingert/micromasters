@@ -27,7 +27,7 @@ const signInButton = document.querySelector('a.open-signup-dialog');
 signInButton.onclick = openDialog;
 
 if ( typeof SETTINGS.programId === 'number' ) {
-  store.dispatch(setProgram(SETTINGS.program));
+  store.dispatch(setProgram(SETTINGS.programId));
 }
 
 ReactDOM.render(
