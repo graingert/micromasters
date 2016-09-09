@@ -91,8 +91,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => {
-  const setProgramHelper = (e,k,v) => {
-    dispatch(setProgram(v));
+  const setProgramHelper = (event, key, value) => {
+    dispatch(setProgram(value));
   };
 
   return {
