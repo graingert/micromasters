@@ -5,8 +5,9 @@ import { Provider } from 'react-redux';
 import { assert } from 'chai';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import { PROGRAM_ENROLLMENTS } from '../constants';
+import TestUtils from 'react-addons-test-utils';
 
+import { PROGRAM_ENROLLMENTS } from '../constants';
 import { signupDialogStore } from '../store/configureStore';
 import { localStorageMock, findReact } from '../util/test_utils';
 import SignupDialog from './SignupDialog';

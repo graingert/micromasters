@@ -90,11 +90,8 @@ const mapStateToProps = state => ({
   program: state.program,
 });
 
-const setProgramLS = id => window.localStorage.setItem("programId", id);
-
 const mapDispatchToProps = dispatch => {
   const setProgramHelper = (e,k,v) => {
-    setProgramLS(v);
     dispatch(setProgram(v));
   };
 

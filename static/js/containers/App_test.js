@@ -127,7 +127,7 @@ describe('App', () => {
         });
       });
 
-      it.only('should set programIdFailed in localStorage if the API returns another error', () => {
+      it('should set programIdFailed in localStorage if the API returns another error', () => {
         addProgramEnrollmentStub.returns(Promise.reject({errorStatusCode: 500}));
 
         return renderComponent('/dashboard', [

@@ -28,13 +28,12 @@ const devTools = () => (
   notProd() && window.devToolsExtension ? window.devToolsExtension() : f => f
 );
 
+const storage = path => (
+  compose(filter([path]))(adapter(window.localStorage))
+);
+
 const createPersistantStore = persistance => compose(
   persistance,
-  middleware(),
-  devTools()
-)(createStore);
-
-const createNormalStore = compose(
   middleware(),
   devTools()
 )(createStore);
@@ -44,7 +43,13 @@ const createPersistantTestStore = persistance => compose(
 )(configureTestStore);
 
 export default function configureStore(initialState: ?Object) {
-  const store = createNormalStore(rootReducer, initialState);
+  const persistance = persistState(
+    storage('currentProgramEnrollment'), 'redux'
+  );
+
+  const store = createPersistantStore(persistance)(
+    rootReducer, initialState
+  );
 
   if (module.hot) {
     // Enable Webpack hot module replacement for reducers
@@ -59,12 +64,8 @@ export default function configureStore(initialState: ?Object) {
 }
 
 export const signupDialogStore = (test: boolean = false) => {
-  const storage = compose(
-    filter(['program']),
-  )(adapter(window.localStorage));
-
   const persistance = persistState(
-    storage, 'signupDialogRedux'
+    storage('program'), 'signupDialogRedux'
   );
 
   if ( test ) {
