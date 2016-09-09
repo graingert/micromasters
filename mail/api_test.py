@@ -18,7 +18,7 @@ class MailAPITests(TestCase):
         # NOTE: Using patch.multiple to override settings values because Django's
         # override_settings decorator fails to work for mysterious reasons
         MailgunClient.send_bcc('email subject', 'email body')
-        called_args, called_kwargs = mock_post.call_args  # pylint: disable=unused-variable
+        _, called_kwargs = mock_post.call_args
         assert called_kwargs['data']['from'] == 'mailgun_from_email@example.com'
 
     def test_send_bcc(self, mock_post):  # pylint: disable=no-self-use
@@ -27,7 +27,7 @@ class MailAPITests(TestCase):
         """
         MailgunClient.send_bcc('email subject', 'email body', 'a@example.com,b@example.com')
         assert mock_post.called
-        called_args, called_kwargs = mock_post.call_args  # pylint: disable=unused-variable
+        called_args, called_kwargs = mock_post.call_args
         assert list(called_args)[0] == '{}/{}'.format(settings.MAILGUN_URL, 'messages')
         assert called_kwargs['auth'] == ('api', settings.MAILGUN_KEY)
         assert called_kwargs['data']['text'].startswith('email body')
@@ -41,7 +41,7 @@ class MailAPITests(TestCase):
         in MailgunClient.send_bcc
         """
         MailgunClient.send_bcc('email subject', 'email body', 'a@example.com,b@example.com')
-        called_args, called_kwargs = mock_post.call_args  # pylint: disable=unused-variable
+        _, called_kwargs = mock_post.call_args
         assert called_kwargs['data']['bcc'] == 'override@example.com'
 
     @override_settings(MAILGUN_RECIPIENT_OVERRIDE=None)
@@ -51,5 +51,5 @@ class MailAPITests(TestCase):
         override exists
         """
         MailgunClient.send_bcc('email subject', 'email body', 'a@example.com,b@example.com')
-        called_args, called_kwargs = mock_post.call_args  # pylint: disable=unused-variable
+        _, called_kwargs = mock_post.call_args
         assert called_kwargs['data']['bcc'] == 'a@example.com,b@example.com'

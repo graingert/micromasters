@@ -56,7 +56,7 @@ class MailViewsTests(APITestCase):
         assert resp_post.status_code == HTTP_200_OK
         assert mock_prepare_exec_search.called
         assert mock_mailgun_client.send_bcc.called
-        called_args, called_kwargs = mock_mailgun_client.send_bcc.call_args  # pylint: disable=unused-variable
+        called_args, _ = mock_mailgun_client.send_bcc.call_args
         called_args = list(called_args)
         assert called_args[0] == self.request_data['email_subject']
         assert called_args[1] == self.request_data['email_body']
