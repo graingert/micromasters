@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { assert } from 'chai';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import TestUtils from 'react-addons-test-utils';
 
 import { PROGRAM_ENROLLMENTS } from '../constants';
 import { signupDialogStore } from '../store/configureStore';
@@ -16,7 +15,7 @@ import {
   setProgram,
 } from '../actions/signup_dialog';
 
-let store, listenForActions, dispatchThen, dialog;
+let store;
 
 // mount the component with the test store
 const mountDialog = () => (
@@ -42,9 +41,7 @@ describe('SignupDialog', () => {
     }
     SETTINGS.programs = PROGRAM_ENROLLMENTS;
     store = signupDialogStore(true);
-    listenForActions = store.createListenForActions();
-    dispatchThen = store.createDispatchThen();
-    dialog = mountDialog();
+    mountDialog();
   });
 
   afterEach(() => {

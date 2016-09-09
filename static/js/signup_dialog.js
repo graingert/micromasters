@@ -20,12 +20,11 @@ const store = signupDialogStore();
 const dialogDiv = document.querySelector('#signup-dialog');
 
 const openDialog = () => store.dispatch(setDialogVisibility(true));
-window.openDialog = openDialog;
 
 // find the DOM element and attach openDialog to onClick
-const logoLink = document.querySelector('a.navbar-brand');
+const signInButton = document.querySelector('a.open-signup-dialog');
 
-logoLink.onClick = openDialog;
+signInButton.onclick = openDialog;
 
 if ( typeof SETTINGS.programId === 'number' ) {
   store.dispatch(setProgram(SETTINGS.program));
