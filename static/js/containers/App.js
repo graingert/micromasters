@@ -12,7 +12,6 @@ import {
   FETCH_SUCCESS,
   FETCH_FAILURE,
   FETCH_PROCESSING,
-  FETCH_FAILURE,
   fetchDashboard,
   clearDashboard,
 } from '../actions';
@@ -40,11 +39,6 @@ import type {
   ProgramEnrollmentsState,
 } from '../flow/enrollmentTypes';
 import type { ProfileGetResult } from '../flow/profileTypes';
-import type { Dashboard } from '../flow/dashboardTypes';
-import type { Profile } from '../flow/profileTypes';
-import type { Dashboard } from '../flow/dashboardTypes';
-import type { ProgramEnrollmentsState } from '../flow/enrollmentTypes';
-import type { Profile } from '../flow/profileTypes';
 import type { UIState } from '../reducers/ui';
 import { filterPositiveInt } from '../util/util';
 

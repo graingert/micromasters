@@ -65,12 +65,13 @@ export const localStorageMock = (init = {}) => {
 };
 
 export const findReact = (dom) => {
-  for (var key in dom)
+  for (let [key, val] of Object.entries(dom)) {
     if (key.startsWith("__reactInternalInstance$")) {
-      var compInternals = dom[key]._currentElement;
-      var compWrapper = compInternals._owner;
-      var comp = compWrapper._instance;
+      let compInternals = val._currentElement;
+      let compWrapper = compInternals._owner;
+      let comp = compWrapper._instance;
       return comp;
     }
+  }
   return null;
 };

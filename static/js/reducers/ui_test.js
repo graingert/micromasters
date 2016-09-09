@@ -21,8 +21,6 @@ import {
   SET_EMAIL_DIALOG_VISIBILITY,
   SET_ENROLL_DIALOG_VISIBILITY,
   SET_ENROLL_SELECTED_PROGRAM,
-  SET_SIGNUP_DIALOG_VISIBILITY,
-  SET_SIGNUP_PROGRAM,
 
   clearUI,
   updateDialogText,
@@ -45,8 +43,6 @@ import {
   setEmailDialogVisibility,
   setEnrollDialogVisibility,
   setEnrollSelectedProgram,
-  setSignupDialogVisibility,
-  setSignupProgram,
 } from '../actions/ui';
 import { INITIAL_UI_STATE } from '../reducers/ui';
 import { PROFILE_STEP_LABELS } from '../constants';

@@ -45,7 +45,6 @@ const SignupDialog = ({
   setDialogVisibility,
   setProgram
 }: signupProps) => {
-  console.log(SETTINGS.programs);
   return <Dialog
     open={open}
     className="signup-dialog-wrapper"

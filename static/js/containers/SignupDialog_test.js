@@ -3,15 +3,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { assert } from 'chai';
-import sinon from 'sinon';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import R from 'ramda';
-import TestUtils from 'react-addons-test-utils';
-import configureTestStore from 'redux-asserts';
 import { PROGRAM_ENROLLMENTS } from '../constants';
-import MenuItem from 'material-ui/MenuItem';
-import SelectField from 'material-ui/SelectField';
 
 import { signupDialogStore } from '../store/configureStore';
 import { localStorageMock, findReact } from '../util/test_utils';
@@ -21,7 +15,7 @@ import {
   setProgram,
 } from '../actions/signup_dialog';
 
-let store, listenForActions, dispatchThen, dialog, localStorage;
+let store, listenForActions, dispatchThen, dialog;
 
 // mount the component with the test store
 const mountDialog = () => (
@@ -69,12 +63,14 @@ describe('SignupDialog', () => {
   });
 
   it('should update localStorage when selecting a program', () => {
-    console.log(getLocalStorage());
+    assert.isNull(getLocalStorage());
+    store.dispatch(setProgram(2));
+    assert.deepEqual(getLocalStorage(), { program: 2 });
   });
 
-  it('should pull programs from SETTINGS.programs', () => {
+  it('should not update localStorage when opening the dialog', () => {
+    assert.isNull(getLocalStorage());
+    openDialog();
+    assert.deepEqual(getLocalStorage(), {});
   });
-
-//   it('should pull programs from SETTINGS.programs', () => {
-//   });
 });
