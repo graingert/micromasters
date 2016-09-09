@@ -125,7 +125,7 @@ class App extends React.Component {
           e => {
             window.localStorage.removeItem("signupDialogRedux");
             if ( e.errorStatusCode !== 404 ) {
-              window.localStorage.setItem("programIdFailed", programId);
+              console.error("adding program enrollment failed for program: ", programId);
             }
           }
         );
