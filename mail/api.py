@@ -26,10 +26,12 @@ class MailgunClient:
             requests.Response: HTTP response
         """
         mailgun_url = '{}/{}'.format(settings.MAILGUN_URL, endpoint)
+        emails_params = {'from': settings.MAILGUN_FROM_EMAIL}
+        emails_params.update(**params)
         return request_func(
             mailgun_url,
             auth=('api', settings.MAILGUN_KEY),
-            data=dict(**{'from': settings.MAILGUN_FROM_EMAIL}, **params)
+            data=dict(**emails_params)
         )
 
     @classmethod
@@ -48,11 +50,37 @@ class MailgunClient:
             requests.Response: HTTP response from Mailgun
         """
         if settings.MAILGUN_RECIPIENT_OVERRIDE:
-            body = '{}\n\n[overridden recipients]\n{}'.format(body, recipients.replace(',', '\n'))
+            body = '{0}\n\n[overridden recipients]\n{1}'.format(body, recipients.replace(',', '\n'))
             recipients = settings.MAILGUN_RECIPIENT_OVERRIDE
         params = dict(
             to=settings.MAILGUN_BCC_TO_EMAIL,
             bcc=recipients,
+            subject=subject,
+            text=body
+        )
+        return cls._mailgun_request(requests.post, 'messages', params)
+
+    @classmethod
+    def send(cls, subject, body, recipient):
+        """
+        Sends a text email to a recipient. If the
+        MAILGUN_RECIPIENT_OVERRIDE setting is specified, the recipient
+        will be ignored in favor of the recipient(s) in that setting value.
+
+        Args:
+            subject (str): Email subject
+            body (str): Text email body
+            recipient (str): An email
+
+        Returns:
+            requests.Response: HTTP response from Mailgun
+        """
+
+        if settings.MAILGUN_RECIPIENT_OVERRIDE:
+            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, recipient)
+            recipient = settings.MAILGUN_RECIPIENT_OVERRIDE
+        params = dict(
+            to=recipient,
             subject=subject,
             text=body
         )
