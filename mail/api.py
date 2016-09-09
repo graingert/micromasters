@@ -1,6 +1,8 @@
 """
 Provides functions for sending and retrieving data about in-app email
 """
+import json
+
 import requests
 from django.conf import settings
 
@@ -61,27 +63,28 @@ class MailgunClient:
         return cls._mailgun_request(requests.post, 'messages', params)
 
     @classmethod
-    def send(cls, subject, body, recipient):
+    def send_batch(cls, subject, body, recipients):
         """
-        Sends a text email to a recipient. If the
+        Sends a text email to a list of recipients (one email per recipient) via batch. If the
         MAILGUN_RECIPIENT_OVERRIDE setting is specified, the recipient
         will be ignored in favor of the recipient(s) in that setting value.
 
         Args:
             subject (str): Email subject
             body (str): Text email body
-            recipient (str): An email
+            recipients (list): A list of emails
 
         Returns:
             requests.Response: HTTP response from Mailgun
         """
 
         if settings.MAILGUN_RECIPIENT_OVERRIDE:
-            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, recipient)
-            recipient = settings.MAILGUN_RECIPIENT_OVERRIDE
+            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, '\n'.join(recipients))
+            recipients = [settings.MAILGUN_RECIPIENT_OVERRIDE]
         params = dict(
-            to=recipient,
+            to=recipients,
             subject=subject,
             text=body
         )
+        params['recipient-variables'] = json.dumps({email: {} for email in recipients})
         return cls._mailgun_request(requests.post, 'messages', params)

@@ -38,16 +38,12 @@ class MailView(APIView):
             search_param_dict=request.data.get('search_request'),
             search_func=get_all_query_matching_emails
         )
-        statuses = {}
-        for email in emails:
-            mailgun_resp = MailgunClient.send(
-                subject=request.data['email_subject'],
-                body=request.data['email_body'],
-                recipient=email
-            )
-            if status.HTTP_200_OK <= mailgun_resp.status_code <= 299:
-                log.error('unable to send email to {}', email)
+        mailgun_resp = MailgunClient.send_batch(
+            subject=request.data['email_subject'],
+            body=request.data['email_body'],
+            recipients=emails
+        )
         return Response(
-            status=status.HTTP_200_OK,
-            data=statuses
+            status=mailgun_resp.status_code,
+            data=mailgun_resp.json()
         )
