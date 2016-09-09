@@ -33,6 +33,7 @@ const selectProgram = (setProgram, program) => (
     hintText="Select"
     onChange={setProgram}
     value={program}
+    className="signup-dialog-select"
   >
     { menuItems(SETTINGS.programs) }
   </SelectField>
