@@ -11,9 +11,10 @@ import TestUtils from 'react-addons-test-utils';
 import configureTestStore from 'redux-asserts';
 import { PROGRAM_ENROLLMENTS } from '../constants';
 import MenuItem from 'material-ui/MenuItem';
+import SelectField from 'material-ui/SelectField';
 
 import { signupDialogStore } from '../store/configureStore';
-import { localStorageMock } from '../util/test_utils';
+import { localStorageMock, findReact } from '../util/test_utils';
 import SignupDialog from './SignupDialog';
 import {
   setDialogVisibility,
@@ -33,7 +34,11 @@ const mountDialog = () => (
   )
 );
 
+const getLocalStorage = () => JSON.parse(window.localStorage.getItem("signupDialogRedux"));
+
 const openDialog = () => store.dispatch(setDialogVisibility(true));
+
+const programSelect = () => document.querySelector('.signup-dialog-select');
 
 describe('SignupDialog', () => {
   beforeEach(() => {
@@ -41,7 +46,7 @@ describe('SignupDialog', () => {
       window.localStorage = localStorageMock();
     }
     SETTINGS.programs = PROGRAM_ENROLLMENTS;
-    store = configureTestStore(signupDialogStore.bind(this, true));
+    store = signupDialogStore(true);
     listenForActions = store.createListenForActions();
     dispatchThen = store.createDispatchThen();
     dialog = mountDialog();
@@ -52,18 +57,23 @@ describe('SignupDialog', () => {
     delete(SETTINGS.programs);
   });
 
-  it.only('should pull programs from SETTINGS.programs', () => {
+  it('should pull programs from SETTINGS.programs', () => {
     openDialog();
-    // console.log(dialog.parents());
-    console.log(dialog.parent().find(MenuItem));
-    console.log("FOOBAR");
+
+    let renderedSelectOptions = findReact(programSelect()).props.children.map(child => {
+      let { value, primaryText } = child.props;
+      return { id: value, title: primaryText };
+    });
+
+    assert.deepEqual(renderedSelectOptions, SETTINGS.programs);
   });
 
-//   it('should update localStorage when ', () => {
-//   });
+  it('should update localStorage when selecting a program', () => {
+    console.log(getLocalStorage());
+  });
 
-//   it('should pull programs from SETTINGS.programs', () => {
-//   });
+  it('should pull programs from SETTINGS.programs', () => {
+  });
 
 //   it('should pull programs from SETTINGS.programs', () => {
 //   });

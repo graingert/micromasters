@@ -6,6 +6,7 @@ import createLogger from 'redux-logger';
 import persistState from 'redux-localstorage';
 import filter from 'redux-localstorage-filter';
 import adapter from 'redux-localstorage/lib/adapters/localStorage';
+import configureTestStore from 'redux-asserts';
 
 import rootReducer from '../reducers';
 import {
@@ -40,7 +41,7 @@ const createNormalStore = compose(
 
 const createPersistantTestStore = persistance => compose(
   persistance,
-)(createStore);
+)(configureTestStore);
 
 export default function configureStore(initialState: ?Object) {
   const store = createNormalStore(rootReducer, initialState);
