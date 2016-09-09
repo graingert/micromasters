@@ -127,22 +127,27 @@ describe('App', () => {
         });
       });
 
-      it('should set programIdFailed in localStorage if the API returns another error', () => {
-        addProgramEnrollmentStub.returns(Promise.reject({errorStatusCode: 500}));
+      describe('error handling', () => {
+        let cStub;
+        beforeEach(() => {
+          cStub = helper.sandbox.stub(console, 'error');
+        });
 
-        return renderComponent('/dashboard', [
-          REQUEST_ADD_PROGRAM_ENROLLMENT,
-          RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
-        ]).then(() => {
-          assert(
-            window.localStorage.removeItem.calledWith("signupDialogRedux"),
-            "removeItem should be called to remove 'programId'"
-          );
+        afterEach(() => {
+          cStub.restore();
+        });
 
-          assert(
-            window.localStorage.setItem.calledWith("programIdFailed", 2),
-            "failed program Id should be persisted"
-          );
+        it.only('should raise an error if the API returns a different error', () => {
+          addProgramEnrollmentStub.returns(Promise.reject({errorStatusCode: 500}));
+
+          return renderComponent('/dashboard', [
+            REQUEST_ADD_PROGRAM_ENROLLMENT,
+            RECEIVE_ADD_PROGRAM_ENROLLMENT_FAILURE,
+          ]).then(() => {
+            assert(console.error.calledWith( // eslint-disable-line no-console
+              "adding program enrollment failed for program: ", 2
+            ), "should be called with correct argument");
+          });
         });
       });
     });
