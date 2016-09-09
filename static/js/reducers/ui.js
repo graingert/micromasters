@@ -30,8 +30,6 @@ import {
 
   SET_ENROLL_DIALOG_VISIBILITY,
   SET_ENROLL_SELECTED_PROGRAM,
-  SET_SIGNUP_DIALOG_VISIBILITY,
-  SET_SIGNUP_PROGRAM,
 } from '../actions/ui';
 import { PERSONAL_STEP } from '../constants';
 import type { Action } from '../flow/reduxTypes';
@@ -58,8 +56,6 @@ export type UIState = {
   emailDialogVisibility:        boolean;
   enrollDialogVisibility:       boolean;
   enrollSelectedProgram:       ?number;
-  signupDialogVisibility:       boolean;
-  signupProgram:                ?number;
 };
 
 export const INITIAL_UI_STATE: UIState = {
@@ -84,8 +80,6 @@ export const INITIAL_UI_STATE: UIState = {
   emailDialogVisibility: false,
   enrollDialogVisibility: false,
   enrollSelectedProgram: null,
-  signupDialogVisibility: false,
-  signupProgram: null,
 };
 
 export const ui = (state: UIState = INITIAL_UI_STATE, action: Action) => {
@@ -199,10 +193,6 @@ export const ui = (state: UIState = INITIAL_UI_STATE, action: Action) => {
       enrollDialogVisibility: action.payload
     });
   }
-  case SET_SIGNUP_DIALOG_VISIBILITY:
-    return { ...state, signupDialogVisibility: action.payload };
-  case SET_SIGNUP_PROGRAM:
-    return { ...state, signupProgram: action.payload };
   default:
     return state;
   }
