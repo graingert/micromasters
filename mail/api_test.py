@@ -17,7 +17,7 @@ class MailAPITests(TestCase):
         """
         # NOTE: Using patch.multiple to override settings values because Django's
         # override_settings decorator fails to work for mysterious reasons
-        MailgunClient.send_bcc('email subject', 'email body')
+        MailgunClient.send_bcc('email subject', 'email body', ['will_be_ignored@example.com'])
         _, called_kwargs = mock_post.call_args
         assert called_kwargs['data']['from'] == 'mailgun_from_email@example.com'
 
@@ -40,7 +40,7 @@ class MailAPITests(TestCase):
         Test that an email override value will be used over recipients specified
         in MailgunClient.send_bcc
         """
-        MailgunClient.send_bcc('email subject', 'email body', 'a@example.com,b@example.com')
+        MailgunClient.send_bcc('email subject', 'email body', ['a@example.com', 'b@example.com'])
         _, called_kwargs = mock_post.call_args
         assert called_kwargs['data']['bcc'] == 'override@example.com'
 
@@ -50,6 +50,6 @@ class MailAPITests(TestCase):
         Test that recipients passed to MailgunClient.send_bcc will be used when no email
         override exists
         """
-        MailgunClient.send_bcc('email subject', 'email body', 'a@example.com,b@example.com')
+        MailgunClient.send_bcc('email subject', 'email body', ['a@example.com', 'b@example.com'])
         _, called_kwargs = mock_post.call_args
         assert called_kwargs['data']['bcc'] == 'a@example.com,b@example.com'

@@ -19,6 +19,16 @@ from roles.models import Role
 from roles.roles import Staff
 
 
+def mocked_json(return_data=None):
+    """Mocked version of the json method for the Response class"""
+    if return_data is None:
+        return_data = {}
+
+    def json(*args, **kwargs):  # pylint:disable=unused-argument, missing-docstring
+        return return_data
+    return json
+
+
 @patch('mail.views.prepare_and_execute_search')  # pylint: disable=missing-docstring
 @patch('mail.views.MailgunClient')  # pylint: disable=missing-docstring
 class MailViewsTests(APITestCase):
@@ -51,26 +61,38 @@ class MailViewsTests(APITestCase):
         """
         email_results = ['a@example.com', 'b@example.com']
         mock_prepare_exec_search.return_value = email_results
-        mock_mailgun_client.send_bcc.return_value = Mock(spec=Response, status_code=HTTP_200_OK)
+        mock_mailgun_client.send_batch.return_value = [
+            Mock(spec=Response, status_code=HTTP_200_OK, json=mocked_json())
+        ]
         resp_post = self.client.post(self.mail_url, data=self.request_data, format='json')
         assert resp_post.status_code == HTTP_200_OK
         assert mock_prepare_exec_search.called
-        assert mock_mailgun_client.send_bcc.called
-        called_args, _ = mock_mailgun_client.send_bcc.call_args
-        called_args = list(called_args)
-        assert called_args[0] == self.request_data['email_subject']
-        assert called_args[1] == self.request_data['email_body']
-        assert called_args[2] == ','.join(email_results)
+        assert mock_mailgun_client.send_batch.called
+        _, called_kwargs = mock_mailgun_client.send_batch.call_args
+        assert called_kwargs['subject'] == self.request_data['email_subject']
+        assert called_kwargs['body'] == self.request_data['email_body']
+        assert called_kwargs['recipients'] == email_results
 
-    def test_mailgun_status_returned(self, mock_mailgun_client, mock_prepare_exec_search):
+    def test_view_response(self, mock_mailgun_client, mock_prepare_exec_search):
         """
-        Test that the status code from Mailgun's API response will be returned in our own
-         response
+        Test the structure of the response returned by the view
         """
-        mock_prepare_exec_search.return_value = []
-        mock_mailgun_client.send_bcc.return_value = Mock(spec=Response, status_code=HTTP_400_BAD_REQUEST)
+        email_results = ['a@example.com', 'b@example.com']
+        mock_prepare_exec_search.return_value = email_results
+        mock_mailgun_client.send_batch.return_value = [
+            Mock(spec=Response, status_code=HTTP_200_OK, json=mocked_json()),
+            Mock(spec=Response, status_code=HTTP_400_BAD_REQUEST, json=mocked_json()),
+        ]
         resp_post = self.client.post(self.mail_url, data=self.request_data, format='json')
-        assert resp_post.status_code == HTTP_400_BAD_REQUEST
+        assert resp_post.status_code == HTTP_200_OK
+        assert len(resp_post.data.keys()) == 2
+        for num in range(2):
+            batch = 'batch_{0}'.format(num)
+            assert batch in resp_post.data
+            assert 'status_code' in resp_post.data[batch]
+            assert 'data' in resp_post.data[batch]
+        assert resp_post.data['batch_0']['status_code'] == HTTP_200_OK
+        assert resp_post.data['batch_1']['status_code'] == HTTP_400_BAD_REQUEST
 
     def test_no_program_user_response(self, *args):  # pylint: disable=unused-argument
         """

@@ -37,7 +37,7 @@ class MailgunClient:
         )
 
     @classmethod
-    def send_bcc(cls, subject, body, recipients=''):
+    def send_bcc(cls, subject, body, recipients):
         """
         Sends a text email to a BCC'ed list of recipients. If the
         MAILGUN_RECIPIENT_OVERRIDE setting is specified, the list of recipients
@@ -46,24 +46,24 @@ class MailgunClient:
         Args:
             subject (str): Email subject
             body (str): Text email body
-            recipients (str): Comma-separated list of recipient emails
+            recipients (list): A list of recipient emails
 
         Returns:
             requests.Response: HTTP response from Mailgun
         """
         if settings.MAILGUN_RECIPIENT_OVERRIDE:
-            body = '{0}\n\n[overridden recipients]\n{1}'.format(body, recipients.replace(',', '\n'))
-            recipients = settings.MAILGUN_RECIPIENT_OVERRIDE
+            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, '\n'.join(recipients))
+            recipients = [settings.MAILGUN_RECIPIENT_OVERRIDE]
         params = dict(
             to=settings.MAILGUN_BCC_TO_EMAIL,
-            bcc=recipients,
+            bcc=','.join(recipients),
             subject=subject,
             text=body
         )
         return cls._mailgun_request(requests.post, 'messages', params)
 
     @classmethod
-    def send_batch(cls, subject, body, recipients):
+    def send_batch(cls, subject, body, recipients, chunk_size=1000):
         """
         Sends a text email to a list of recipients (one email per recipient) via batch. If the
         MAILGUN_RECIPIENT_OVERRIDE setting is specified, the recipient
@@ -72,19 +72,23 @@ class MailgunClient:
         Args:
             subject (str): Email subject
             body (str): Text email body
-            recipients (list): A list of emails
+            recipients (list): A list of recipient emails
 
         Returns:
-            requests.Response: HTTP response from Mailgun
+            list: List of requests.Response HTTP response from Mailgun
         """
 
         if settings.MAILGUN_RECIPIENT_OVERRIDE:
             body = '{0}\n\n[overridden recipient]\n{1}'.format(body, '\n'.join(recipients))
             recipients = [settings.MAILGUN_RECIPIENT_OVERRIDE]
-        params = dict(
-            to=recipients,
-            subject=subject,
-            text=body
-        )
-        params['recipient-variables'] = json.dumps({email: {} for email in recipients})
-        return cls._mailgun_request(requests.post, 'messages', params)
+        chunks = [recipients[i:i + chunk_size] for i in range(0, len(recipients), chunk_size)]
+        responses = []
+        for chunk in chunks:
+            params = dict(
+                to=chunk,
+                subject=subject,
+                text=body
+            )
+            params['recipient-variables'] = json.dumps({email: {} for email in chunk})
+            responses.append(cls._mailgun_request(requests.post, 'messages', params))
+        return responses

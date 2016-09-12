@@ -6,6 +6,7 @@ import logging
 from rest_framework import (
     authentication,
     permissions,
+    status,
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -37,12 +38,17 @@ class MailView(APIView):
             search_param_dict=request.data.get('search_request'),
             search_func=get_all_query_matching_emails
         )
-        mailgun_resp = MailgunClient.send_batch(
+        mailgun_responses = MailgunClient.send_batch(
             subject=request.data['email_subject'],
             body=request.data['email_body'],
             recipients=emails
         )
         return Response(
-            status=mailgun_resp.status_code,
-            data=mailgun_resp.json()
+            status=status.HTTP_200_OK,
+            data={
+                "batch_{}".format(batch_num): {
+                    "status_code": resp.status_code,
+                    "data": resp.json()
+                } for batch_num, resp in enumerate(mailgun_responses)
+            }
         )
