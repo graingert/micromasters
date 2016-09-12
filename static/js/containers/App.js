@@ -3,7 +3,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
-import R from 'ramda';
 
 import ErrorMessage from '../components/ErrorMessage';
 import Navbar from '../components/Navbar';
@@ -31,6 +30,10 @@ import {
   setEnrollDialogVisibility,
   setEnrollSelectedProgram,
 } from '../actions/ui';
+import {
+  setProgram,
+  setDialogVisibility,
+} from '../actions/signup_dialog';
 import { clearUI, setProfileStep } from '../actions/ui';
 import { validateProfileComplete } from '../util/validation';
 import type { DashboardState } from '../flow/dashboardTypes';
@@ -55,6 +58,7 @@ class App extends React.Component {
     enrollments:              ProgramEnrollmentsState,
     history:                  Object,
     ui:                       UIState,
+    signupDialog:             Object,
   };
 
   static contextTypes = {
@@ -108,28 +112,26 @@ class App extends React.Component {
   }
 
   updateProgramEnrollments() {
-    const { enrollments, dispatch } = this.props;
-    let programData = window.localStorage.getItem("signupDialogRedux");
+    const { enrollments, dispatch, signupDialog: { program } } = this.props;
+    const cleanup = () => {
+      dispatch(setProgram(null));
+      dispatch(setDialogVisibility(null));
+    };
     if (
-      programData &&
+      program &&
       enrollments.getStatus === FETCH_SUCCESS &&
       enrollments.postStatus !== FETCH_PROCESSING &&
       enrollments.postStatus !== FETCH_FAILURE
     ) {
-      let programId = filterPositiveInt(R.prop('program', JSON.parse(programData)));
+      let programId = filterPositiveInt(program);
       if ( programId && !enrollments.programEnrollments.find(e => e.id === programId) ) {
-        dispatch(addProgramEnrollment(programId)).then(
-          () => {
-            window.localStorage.removeItem("signupDialogRedux");
-          },
-          e => {
-            window.localStorage.removeItem("signupDialogRedux");
-            if ( e.errorStatusCode !== 404 ) {
-              console.error("adding program enrollment failed for program: ", programId); // eslint-disable-line no-console, max-len
-            }
+        dispatch(addProgramEnrollment(programId)).catch(e => {
+          if ( e.errorStatusCode !== 404 ) {
+            console.error("adding program enrollment failed for program: ", programId); // eslint-disable-line no-console, max-len
           }
-        );
+        });
       }
+      cleanup();
     }
   }
 
@@ -235,6 +237,7 @@ const mapStateToProps = (state) => {
     ui:                       state.ui,
     currentProgramEnrollment: state.currentProgramEnrollment,
     enrollments:              state.enrollments,
+    signupDialog:             state.signupDialog,
   };
 };
 

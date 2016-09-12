@@ -24,7 +24,9 @@ const openDialog = () => store.dispatch(setDialogVisibility(true));
 // find the DOM element and attach openDialog to onClick
 const signInButton = document.querySelector('a.open-signup-dialog');
 
-signInButton.onclick = openDialog;
+if ( signInButton ) {
+  signInButton.onclick = openDialog;
+}
 
 if ( typeof SETTINGS.programId === 'number' ) {
   store.dispatch(setProgram(SETTINGS.programId));
@@ -35,6 +37,6 @@ ReactDOM.render(
     <Provider store={store}>
       <SignupDialog />
     </Provider>
-  </MuiThemeProvider>,
+    </MuiThemeProvider>,
   dialogDiv
 );

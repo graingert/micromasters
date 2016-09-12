@@ -28,7 +28,7 @@ const mountDialog = () => (
   )
 );
 
-const getLocalStorage = () => JSON.parse(window.localStorage.getItem("signupDialogRedux"));
+const getLocalStorage = () => JSON.parse(window.localStorage.getItem("redux"));
 
 const openDialog = () => store.dispatch(setDialogVisibility(true));
 
@@ -49,6 +49,11 @@ describe('SignupDialog', () => {
     delete(SETTINGS.programs);
   });
 
+  const signupDialog = {
+    dialogVisibility: false,
+    program: null,
+  };
+
   it('should pull programs from SETTINGS.programs', () => {
     openDialog();
 
@@ -63,12 +68,14 @@ describe('SignupDialog', () => {
   it('should update localStorage when selecting a program', () => {
     assert.isNull(getLocalStorage());
     store.dispatch(setProgram(2));
-    assert.deepEqual(getLocalStorage(), { program: 2 });
+    let expectation = { signupDialog: { ...signupDialog, program: 2 }};
+    assert.deepEqual(getLocalStorage(), expectation);
   });
 
-  it('should not update localStorage when opening the dialog', () => {
+  it('should update localStorage when opening the dialog', () => {
     assert.isNull(getLocalStorage());
     openDialog();
-    assert.deepEqual(getLocalStorage(), {});
+    let expectation = { signupDialog: { ...signupDialog, dialogVisibility: true } };
+    assert.deepEqual(getLocalStorage(), expectation);
   });
 });

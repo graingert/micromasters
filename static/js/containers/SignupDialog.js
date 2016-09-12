@@ -86,8 +86,8 @@ const SignupDialog = ({
 };
 
 const mapStateToProps = state => ({
-  open: state.dialogVisibility,
-  program: state.program,
+  open: state.signupDialog.dialogVisibility,
+  program: state.signupDialog.program,
 });
 
 const mapDispatchToProps = dispatch => {

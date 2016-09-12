@@ -3,10 +3,12 @@
 import { compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
-import persistState from 'redux-localstorage';
+import persistState, { mergePersistedState }  from 'redux-localstorage';
 import filter from 'redux-localstorage-filter';
 import adapter from 'redux-localstorage/lib/adapters/localStorage';
 import configureTestStore from 'redux-asserts';
+import { combineReducers } from 'redux';
+import type { Reducer } from 'redux';
 
 import rootReducer from '../reducers';
 import {
@@ -28,8 +30,8 @@ const devTools = () => (
   notProd() && window.devToolsExtension ? window.devToolsExtension() : f => f
 );
 
-const storage = path => (
-  compose(filter([path]))(adapter(window.localStorage))
+const storage = paths => (
+  compose(filter(paths))(adapter(window.localStorage))
 );
 
 const createPersistentStore = persistence => compose(
@@ -44,11 +46,15 @@ const createPersistantTestStore = persistence => compose(
 
 export default function configureStore(initialState: ?Object) {
   const persistence = persistState(
-    storage('currentProgramEnrollment'), 'redux'
+    storage([ 'currentProgramEnrollment', 'signupDialog' ]), 'redux'
   );
 
+  const reducer = compose(
+    mergePersistedState()
+  )(rootReducer);
+
   const store = createPersistentStore(persistence)(
-    rootReducer, initialState
+    reducer, initialState
   );
 
   if (module.hot) {
@@ -63,18 +69,32 @@ export default function configureStore(initialState: ?Object) {
   return store;
 }
 
+export const configureMainTestStore = (reducer: Reducer<*>) => {
+  const persistence = persistState(
+    storage([ 'currentProgramEnrollment', 'signupDialog' ]), 'redux'
+  );
+
+  return createPersistantTestStore(persistence)(
+    reducer
+  );
+};
+
 export const signupDialogStore = (test: boolean = false) => {
   const persistence = persistState(
-    storage('program'), 'signupDialogRedux'
+    storage([ 'signupDialog' ]), 'redux'
   );
+
+  const reducer = compose(
+    mergePersistedState()
+  )(combineReducers({ signupDialog }));
 
   if ( test ) {
     return createPersistantTestStore(persistence)(
-      signupDialog, INITIAL_SIGNUP_STATE
+      reducer, { signupDialog: INITIAL_SIGNUP_STATE }
     );
   } else {
     return createPersistentStore(persistence)(
-      signupDialog, INITIAL_SIGNUP_STATE
+      reducer, { signupDialog: INITIAL_SIGNUP_STATE }
     );
   }
 };

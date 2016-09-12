@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import configureTestStore from 'redux-asserts';
 import sinon from 'sinon';
 import { createMemoryHistory } from 'react-router';
+import { mergePersistedState }  from 'redux-localstorage';
+import { compose } from 'redux';
 
 import * as api from '../util/api';
 import {
@@ -25,15 +26,22 @@ import {
 import rootReducer from '../reducers';
 import { makeDashboardRoutes } from '../dashboard_routes';
 import { localStorageMock } from '../util/test_utils';
+import { configureMainTestStore } from '../store/configureStore';
 
 class IntegrationTestHelper {
 
   constructor() {
+    if ( ! window.localStorage ) {
+      window.localStorage = localStorageMock();
+    }
     this.sandbox = sinon.sandbox.create();
-    this.store = configureTestStore((...args) => {
+    this.store = configureMainTestStore((...args) => {
       // uncomment to listen on dispatched actions
       // console.log(args);
-      return rootReducer(...args);
+      const reducer = compose(
+        mergePersistedState()
+      )(rootReducer);
+      return reducer(...args);
     });
 
     this.listenForActions = this.store.createListenForActions();
@@ -50,8 +58,6 @@ class IntegrationTestHelper {
     this.browserHistory.listen(url => {
       this.currentLocation = url;
     });
-
-    window.localStorage = localStorageMock();
   }
 
   cleanup() {

@@ -40,6 +40,7 @@ import type {
   ProfileGetResult,
   Profiles,
 } from '../flow/profileTypes';
+import { signupDialog } from './signup_dialog';
 
 export const INITIAL_PROFILES_STATE = {};
 export const profiles = (state: Profiles = INITIAL_PROFILES_STATE, action: Action) => {
@@ -196,4 +197,5 @@ export default combineReducers({
   checkout,
   enrollments,
   currentProgramEnrollment,
+  signupDialog,
 });
