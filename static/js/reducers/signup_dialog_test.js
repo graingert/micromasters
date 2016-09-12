@@ -17,7 +17,7 @@ describe('signup dialog reducer', () => {
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
     store = configureTestStore(signupDialog);
-    dispatchThen = store.createDispatchThen(state => state);
+    dispatchThen = store.createDispatchThen();
   });
 
   afterEach(() => {
