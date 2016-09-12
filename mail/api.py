@@ -37,11 +37,28 @@ class MailgunClient:
         )
 
     @classmethod
+    def _recipient_override(cls, body, recipients):
+        """
+        Helper method to override body and recipients of an email.
+        If the MAILGUN_RECIPIENT_OVERRIDE setting is specified, the list of recipients
+        will be ignored in favor of the recipients in that setting value.
+
+        Args:
+            body (str): Text email body
+            recipients (list): A list of recipient emails
+
+        Returns:
+            tuple
+        """
+        if settings.MAILGUN_RECIPIENT_OVERRIDE:
+            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, '\n'.join(recipients))
+            recipients = [settings.MAILGUN_RECIPIENT_OVERRIDE]
+        return body, recipients
+
+    @classmethod
     def send_bcc(cls, subject, body, recipients):
         """
-        Sends a text email to a BCC'ed list of recipients. If the
-        MAILGUN_RECIPIENT_OVERRIDE setting is specified, the list of recipients
-        will be ignored in favor of the recipients in that setting value.
+        Sends a text email to a BCC'ed list of recipients.
 
         Args:
             subject (str): Email subject
@@ -51,9 +68,7 @@ class MailgunClient:
         Returns:
             requests.Response: HTTP response from Mailgun
         """
-        if settings.MAILGUN_RECIPIENT_OVERRIDE:
-            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, '\n'.join(recipients))
-            recipients = [settings.MAILGUN_RECIPIENT_OVERRIDE]
+        body, recipients = cls._recipient_override(body, recipients)
         params = dict(
             to=settings.MAILGUN_BCC_TO_EMAIL,
             bcc=','.join(recipients),
@@ -65,9 +80,7 @@ class MailgunClient:
     @classmethod
     def send_batch(cls, subject, body, recipients, chunk_size=1000):
         """
-        Sends a text email to a list of recipients (one email per recipient) via batch. If the
-        MAILGUN_RECIPIENT_OVERRIDE setting is specified, the recipient
-        will be ignored in favor of the recipient(s) in that setting value.
+        Sends a text email to a list of recipients (one email per recipient) via batch.
 
         Args:
             subject (str): Email subject
@@ -78,9 +91,7 @@ class MailgunClient:
             list: List of requests.Response HTTP response from Mailgun
         """
 
-        if settings.MAILGUN_RECIPIENT_OVERRIDE:
-            body = '{0}\n\n[overridden recipient]\n{1}'.format(body, '\n'.join(recipients))
-            recipients = [settings.MAILGUN_RECIPIENT_OVERRIDE]
+        body, recipients = cls._recipient_override(body, recipients)
         chunks = [recipients[i:i + chunk_size] for i in range(0, len(recipients), chunk_size)]
         responses = []
         for chunk in chunks:
