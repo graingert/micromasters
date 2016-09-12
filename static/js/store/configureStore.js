@@ -32,22 +32,22 @@ const storage = path => (
   compose(filter([path]))(adapter(window.localStorage))
 );
 
-const createPersistantStore = persistance => compose(
-  persistance,
+const createPersistentStore = persistence => compose(
+  persistence,
   middleware(),
   devTools()
 )(createStore);
 
-const createPersistantTestStore = persistance => compose(
-  persistance,
+const createPersistantTestStore = persistence => compose(
+  persistence,
 )(configureTestStore);
 
 export default function configureStore(initialState: ?Object) {
-  const persistance = persistState(
+  const persistence = persistState(
     storage('currentProgramEnrollment'), 'redux'
   );
 
-  const store = createPersistantStore(persistance)(
+  const store = createPersistentStore(persistence)(
     rootReducer, initialState
   );
 
@@ -64,16 +64,16 @@ export default function configureStore(initialState: ?Object) {
 }
 
 export const signupDialogStore = (test: boolean = false) => {
-  const persistance = persistState(
+  const persistence = persistState(
     storage('program'), 'signupDialogRedux'
   );
 
   if ( test ) {
-    return createPersistantTestStore(persistance)(
+    return createPersistantTestStore(persistence)(
       signupDialog, INITIAL_SIGNUP_STATE
     );
   } else {
-    return createPersistantStore(persistance)(
+    return createPersistentStore(persistence)(
       signupDialog, INITIAL_SIGNUP_STATE
     );
   }
